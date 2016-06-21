@@ -1,15 +1,62 @@
 /*
 
 HORLOGE À CYCLES ULTRADIENS
+===========================
 
 http://ouilogique.com/horloge_cycles_ultradiens/
 
-HORLOGE DS1307 I²C
-ÉCRAN OLED 128×64 I²C
+# DESCRIPTION DU PROGRAMME
+Voir
+https://github.com/NicHub/ouilogique-Arduino/blob/master/horloge-cycles-ultradiens-arduino/horloge-cycles-ultradiens-arduino.ino
 
-CONNEXIONS I²C
-D1 (GPIO5)  ⇒  SCL + pullup 4.7 kΩ
-D2 (GPIO4)  ⇒  SDA + pullup 4.7 kΩ
+
+## CONNEXIONS ESP8266 Amica
+    GND          ⇒   GND
+    VCC          ⇒   +3.3V
+    I²C SDA      ⇒   pin D2  (GPIO  4) + pullup 4.7 kΩ
+    I²C SCL      ⇒   pin D1  (GPIO  5) + pullup 4.7 kΩ
+    Buzzer +     ⇒   pin D5  (GPIO 14)
+    Buzzer -     ⇒   GND
+    Bouton 1 +   ⇒   pin SD3 (GPIO 10)
+    Bouton 1 -   ⇒   GND
+    Bouton 2 +   ⇒   pin D3  (GPIO  0)
+    Bouton 2 -   ⇒   GND
+
+# HORLOGE DS1307 I²C
+    ## RÉFÉRENCE AliExpress
+    http://www.aliexpress.com/item/5pcs-lot-Tiny-RTC-I2C-AT24C32-DS1307-Real-Time-Clock-Module-Board-For-Arduino-With-A/32327865928.html
+
+    ## ADRESSES I²C
+    0x50 (EEPROM AT24C32)
+    0x68 (DS1307)
+
+    ## LIBRAIRIE Adafruit
+    https://github.com/adafruit/RTClib.git
+
+    ## CONNEXIONS
+    GND   ⇒   GND
+    VCC   ⇒   +5V
+    SDA   ⇒   pin D2  (GPIO  4) + pullup 4.7 kΩ
+    SCL   ⇒   pin D1  (GPIO  5) + pullup 4.7 kΩ
+
+# ÉCRAN OLED 128×64 I²C (compatible SSD1306)
+    ## RÉFÉRENCE AliExpress
+    http://www.aliexpress.com/item/1Pcs-Yellow-blue-double-color-128X64-OLED-LCD-LED-Display-Module-For-Arduino-0-96/32305641669.html
+
+    ## ADRESSE I²C
+    0x3C
+
+    ## LIBRAIRIE Adafruit
+    https://github.com/adafruit/Adafruit_SSD1306.git
+
+    ## CONNEXIONS
+    GND   ⇒   GND
+    VDD   ⇒   +5V
+    SDA   ⇒   pin D2  (GPIO  4) + pullup 4.7 kΩ
+    SCK   ⇒   pin D1  (GPIO  5) + pullup 4.7 kΩ
+
+# MICROCONTRÔLEUR
+    ESP8266 Amica
 
 juin 2016, ouilogique.com
 

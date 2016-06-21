@@ -1,6 +1,6 @@
 # ouilogique-ESP8266-Arduino
 
-Quelques exemples pour programmer l’ESP8266 avec l’IDE Arduino
+Exemples pour programmer l’ESP8266 avec l’IDE Arduino pour mon blog [ouilogique.com](http://ouilogique.com)
 
 ## Voir aussi
 

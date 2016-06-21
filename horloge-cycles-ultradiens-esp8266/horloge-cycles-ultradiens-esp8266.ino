@@ -15,9 +15,9 @@ https://github.com/NicHub/ouilogique-Arduino/blob/master/horloge-cycles-ultradie
     VCC          ⇒   +3.3V
     I²C SDA      ⇒   pin D2  (GPIO  4) + pullup 4.7 kΩ
     I²C SCL      ⇒   pin D1  (GPIO  5) + pullup 4.7 kΩ
-    Buzzer +     ⇒   pin D5  (GPIO 14)
+    Buzzer +     ⇒   pin D6  (GPIO 12)
     Buzzer -     ⇒   GND
-    Bouton 1 +   ⇒   pin SD3 (GPIO 10)
+    Bouton 1 +   ⇒   pin D5  (GPIO 14)
     Bouton 1 -   ⇒   GND
     Bouton 2 +   ⇒   pin D3  (GPIO  0)
     Bouton 2 -   ⇒   GND
@@ -72,12 +72,12 @@ Adafruit_SSD1306 display( OLED_RESET );
 #endif
 
 #include "aTunes.h"
-#define carillonPin 14
+#define carillonPin 12
 #define dXCarillon 5
 #define dYCarillon 25
 bool carillonGet = false;
 
-const int bBtn1  = 10;
+const int bBtn1  = 14;
 const int bBtn2  =  0;
 #define btn1Get ! digitalRead( bBtn1 )
 #define btn2Get ! digitalRead( bBtn2 )

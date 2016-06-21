@@ -72,7 +72,7 @@ Adafruit_SSD1306 display( OLED_RESET );
 #endif
 
 #include "aTunes.h"
-#define carillonPin 12
+#define carillonPin 12 // pin D6
 #define dXCarillon 5
 #define dYCarillon 25
 bool carillonGet = false;
@@ -159,6 +159,8 @@ void horloge()
   // Calculs du pourcentage du cycle d’attention (cycleAtt)
   // et du temps équivalent en 1/16e de jour exprimé en pixels (frac16eJourPx)
   // Temps d’exécution sur l’ATmega328P ≅ 1.3 ms
+  // Temps d’exécution sur l’ESP8266 ( 80 MHz) ≅ 1.1 ms
+  // Temps d’exécution sur l’ESP8266 (160 MHz) ≅ 1.1 ms
   // **
 
   // lecture de l’heure actuelle
@@ -192,6 +194,8 @@ void horloge()
   // ****
   //  Affichage des résultats
   // Temps d’exécution sur l’ATmega328P ≅ 69 ms
+  // Temps d’exécution sur l’ESP8266 ( 80 MHz) ≅ 115 ms
+  // Temps d’exécution sur l’ESP8266 (160 MHz) ≅ 111 ms
   // **
 
   // Effacement de l’écran
@@ -342,6 +346,12 @@ void carillon()
 {
   if( carillonGet )
     { MarioBros( carillonPin ); }
+
+  // On met le carillon en INPUT_PULLUP pour éviter les bruits
+  // parasites lorsqu’il n’est pas utilisé.
+  // Il n’y a pas besoin de le mettre en OUTPUT avant l’utilisation,
+  // car la procédure “tone” s’en charge.
+  pinMode( carillonPin, INPUT_PULLUP );
 }
 
 void setup()

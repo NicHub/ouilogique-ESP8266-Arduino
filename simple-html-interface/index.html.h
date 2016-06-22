@@ -97,18 +97,30 @@ div#label {
 }
 </style>
 <script>
+
 var connection = new WebSocket('ws://'+location.hostname+':81/', ['arduino']);
-connection.onopen = function()
-{
-  console.log('Connexion établie ');
-  connection.send('PAGE WEB - Connexion etablie : ' + new Date());
+var LEDrougeLastValue;
+var LEDbleueLastValue;
+
+connection.onopen = function(){
+  console.log( 'Connexion établie ' );
+  connection.send( 'PAGE WEB - Connexion etablie : ' + new Date() );
 };
-connection.onerror = function(error)
-  { console.log('Erreur WebSocket ', error); };
-connection.onmessage = function(e)
-  { console.log('L’ESP8266 dit : ', e.data); };
-function sendRGB()
-{
+
+connection.onerror = function( error ){
+  console.log( 'Erreur WebSocket ', error );
+};
+
+connection.onmessage = function( e ){
+  console.log( 'L’ESP8266 dit : ', e.data );
+  var GPIO = JSON.parse( e.data );
+  console.log( 'GPIO.GPIO02  = ', GPIO.GPIO2 );
+  console.log( 'GPIO.GPIO16 = ', GPIO.GPIO16 );
+  LEDrougeLastValue = GPIO.GPI16;
+  LEDbleueLastValue = GPIO.GPIO2;
+};
+
+function sendRGB() {
   var r = parseInt(document.getElementById('r').value).toString(16);
   var g = parseInt(document.getElementById('g').value).toString(16);
   var b = parseInt(document.getElementById('b').value).toString(16);
@@ -119,16 +131,67 @@ function sendRGB()
   console.log('RGB: ' + rgb);
   connection.send(rgb);
 }
+
+function sendTextToRS232()
+{
+  var texte = document.getElementById( "txtLED" ).value;
+  console.log( 'texte: ' + texte );
+  connection.send( texte );
+}
+
+
+function changeLEDrouge()
+{
+  if( LEDrougeLastValue == 0 )
+  {
+    var rgb = '#FF0000';
+    LEDrougeLastValue = 1;
+  }
+  else
+  {
+    var rgb = '#000000';
+    LEDrougeLastValue = 0;
+  }
+  console.log('RGB: ' + rgb);
+  connection.send(rgb);
+}
+
+function changeLEDbleue()
+{
+  if( LEDbleueLastValue == 0 )
+  {
+    var rgb = '#0000FF';
+    LEDbleueLastValue = 1;
+  }
+  else
+  {
+    var rgb = '#000000';
+    LEDbleueLastValue = 0;
+  }
+  console.log('RGB: ' + rgb);
+  connection.send(rgb);
+}
+
+
 </script>
 </head>
 <body>
+
 <div class="container">
 <h1 class="neon">Test WebSocket<br />sur ESP8266</h1>
 <label>Texte à envoyer via RS232</label>
 <textarea id="txtLED"></textarea>
-<button type="button" onclick="sendRGB()">Envoyer le&nbsp;texte à&nbsp;l’afficheur</button>
+<button type="button" onclick="sendTextToRS232()">Envoyer le&nbsp;texte</button>
 <div id="label" class="alert">❧</div>
 </div>
+
+
+<div class="container">
+<button type="button" onclick="changeLEDbleue()">LED Bleue (GPIO 02)</button>
+<br/><br/>
+<button type="button" onclick="changeLEDrouge()">LED Rouge (GPIO 16)</button>
+</div>
+
 
 <h1>LED Control</h1>
 <br/>R: <input id="r" type="range" min="0" max="255" step="1" onchange="sendRGB();" />
@@ -136,5 +199,6 @@ function sendRGB()
 <br/>B: <input id="b" type="range" min="0" max="255" step="1" onchange="sendRGB();" />
 </body>
 </html>
+
 
 )=======";

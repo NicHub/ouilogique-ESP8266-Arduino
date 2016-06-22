@@ -38,10 +38,16 @@ static const char* HTML_DOC PROGMEM =
 static const char* mDNSName = "esp8266";
 
 #define LEDrouge   D0 // GPIO 16;
-#define LEDbleue   D4 // GPIO 2;
+#define LEDbleue   D4 // GPIO  2;
+#define Btn1       D5 // GPIO 14;
+#define Btn2       D3 // GPIO  0;
 
 #define LEDallumee 0
 #define LEDeteinte 1
+#define btn1Get ! digitalRead( Btn1 )
+#define btn2Get ! digitalRead( Btn2 )
+bool btn1LastState = false;
+bool btn2LastState = false;
 
 #define USE_SERIAL Serial
 
@@ -67,6 +73,26 @@ void onFaitUnePause( unsigned long attente )
   USE_SERIAL.flush();
 }
 
+// void sendJsonStatus()
+// {
+//   IPAddress ip = webSocket.remoteIP( num );
+//   char jsonMsg[ 50 ];
+//   sprintf( jsonMsg,
+//     "{\"GPIO16\":%d,"
+//      "\"GPIO02\":%d,"
+//      "\"GPIO14\":%d,"
+//      "\"GPIO00\":%d}"
+//      ,
+//      !digitalRead( LEDrouge ),
+//      !digitalRead( LEDbleue ),
+//       btn1Get,
+//       btn2Get
+//   );
+
+//   USE_SERIAL.printf( "%s\n", jsonMsg );
+//   webSocket.sendTXT( num, jsonMsg );
+// }
+
 void webSocketEvent( uint8_t num, WStype_t type, uint8_t * payload, size_t length )
 {
     IPAddress ip;
@@ -81,10 +107,22 @@ void webSocketEvent( uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
       ip = webSocket.remoteIP( num );
       USE_SERIAL.printf( "[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload );
       // send message to client
-      webSocket.sendTXT( num, "Connected !!!" );
+      // webSocket.sendTXT( num, "{\"Connexion\":\"OK\"}" );
+      char jsonMsg[ 50 ];
+      sprintf( jsonMsg,
+        "{\"GPIO16\":%d,"
+         "\"GPIO02\":%d}",
+         !digitalRead( LEDrouge ),
+         !digitalRead( LEDbleue ) );
+
+      USE_SERIAL.printf( "%s\n", jsonMsg );
+      webSocket.sendTXT( num, jsonMsg );
+
+
       break;
 
     case WStype_TEXT:
+      USE_SERIAL.printf( "length : %d\n", length );
       USE_SERIAL.printf( "[%u] get Text: %s\n", num, payload );
       if( payload[0] == '#' )
       {
@@ -173,10 +211,14 @@ void setup()
   USE_SERIAL.begin( 115200 );
   USE_SERIAL.print( "\n\n\n\n###\n\nDEMARRAGE DE L'ESP8266\n\n" );
 
+  // Initialisation des boutons
+  pinMode( Btn1, INPUT_PULLUP );
+  pinMode( Btn2, INPUT_PULLUP );
+
   // Initialisation des LED et attente
   pinMode( LEDrouge, OUTPUT );
   pinMode( LEDbleue, OUTPUT );
-  onFaitUnePause( 1000 );
+  onFaitUnePause( 4000 );
 
   // Démarrage des services web
   demarrageServicesWeb();
@@ -195,4 +237,23 @@ void loop()
 {
   webSocket.loop();
   server.handleClient();
+
+  bool btn1CurrentState = btn1Get;
+  bool btn2CurrentState = btn2Get;
+  if( btn1CurrentState != btn1LastState )
+  {
+    USE_SERIAL.printf( "Bouton 1 = %d\n", btn1CurrentState );
+    btn1LastState = btn1CurrentState;
+  }
+  if( btn2CurrentState != btn2LastState )
+  {
+    USE_SERIAL.printf( "Bouton 2 = %d\n", btn2CurrentState );
+    btn2LastState = btn2CurrentState;
+  }
+
+  // if( btn1CurrentState != btn1LastState || btn2CurrentState != btn2LastState )
+  // {
+  //   sendJsonStatus();
+  // }
+
 }

@@ -3,15 +3,21 @@
 SIMPLE HTML INTERFACE
 =====================
 
-Ce croquis utilise la bibliothèque “arduinoWebSockets 2.0.2” de Markus Sattler.
-https://github.com/Links2004/arduinoWebSockets.git
-Cette bibliothèque peut être installée directement dans le gestionnaire de bibliothèque de l’IDE Arduino.
+  Ce croquis utilise la bibliothèque “arduinoWebSockets 2.0.2” de Markus Sattler.
+  https://github.com/Links2004/arduinoWebSockets.git
+  Cette bibliothèque peut être installée directement dans le gestionnaire de bibliothèque de l’IDE Arduino.
 
-Ce croquis est basé sur l’exemple “WebSocketServer_LEDcontrol”
-https://github.com/Links2004/arduinoWebSockets/tree/master/examples/WebSocketServer_LEDcontrol
+  Ce croquis est basé sur l’exemple “WebSocketServer_LEDcontrol”
+  https://github.com/Links2004/arduinoWebSockets/tree/master/examples/WebSocketServer_LEDcontrol
 
 # MICROCONTRÔLEUR
-    ESP8266 Amica
+  ESP8266 Amica
+
+# NOTE
+  Pour ne pas mettre à jour le fichier “WifiSettings.h” dans Git utiliser
+  git update-index --skip-worktree WifiSettings.h
+  Et pour le mettre à jour (pas recommandé)
+  git update-index --no-skip-worktree WifiSettings.h
 
 juin 2016, ouilogique.com
 
@@ -29,6 +35,7 @@ juin 2016, ouilogique.com
 static const char* HTML_DOC PROGMEM =
 #include "index.html.h"
 ;
+static const char* mDNSName = "esp8266";
 
 #define LEDrouge   D0 // GPIO 16;
 #define LEDbleue   D4 // GPIO 2;
@@ -42,25 +49,22 @@ ESP8266WiFiMulti WiFiMulti;
 ESP8266WebServer server    = ESP8266WebServer( 80 );
 WebSocketsServer webSocket = WebSocketsServer( 81 );
 
-void onFaitUnePause()
+void onFaitUnePause( unsigned long attente )
 {
-  USE_SERIAL.print( "On fait une pause de 4 s\n" );
-  for( unsigned long i=0; i<10; i++ )
+  unsigned long Tf = millis() + attente;
+  USE_SERIAL.flush();
+  bool status = false;
+  USE_SERIAL.printf( "On fait une pause de %d ms ", attente );
+  while( millis() < Tf )
   {
-    digitalWrite( LEDbleue, LEDallumee );
-    delay( 100 );
-    digitalWrite( LEDbleue, LEDeteinte );
-    delay( 100 );
-    USE_SERIAL.print( "." );
+    digitalWrite( LEDbleue,   status );
+    digitalWrite( LEDrouge, ! status );
+    status = ! status;
+    if( status ) { USE_SERIAL.print( "." ); }
+    delay( 60 );
   }
-  for( unsigned long i=0; i<10; i++ )
-  {
-    digitalWrite( LEDrouge, LEDallumee );
-    delay( 100 );
-    digitalWrite( LEDrouge, LEDeteinte );
-    delay( 100 );
-    USE_SERIAL.print( "." );
-  }
+  USE_SERIAL.print( " OK\n" );
+  USE_SERIAL.flush();
 }
 
 void webSocketEvent( uint8_t num, WStype_t type, uint8_t * payload, size_t length )
@@ -95,10 +99,10 @@ void webSocketEvent( uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
         long RR = ((rgb >> 16) & 0xFF);
         long BB = ((rgb >> 0) & 0xFF);
 
-        Serial.print( "RR = " );
-        Serial.println( RR );
-        Serial.print( "BB = " );
-        Serial.println( BB );
+        USE_SERIAL.print( "RR = " );
+        USE_SERIAL.println( RR );
+        USE_SERIAL.print( "BB = " );
+        USE_SERIAL.println( BB );
         if( RR > 127 )
           digitalWrite( LEDrouge, LEDallumee );
         else
@@ -112,42 +116,79 @@ void webSocketEvent( uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
     }
 }
 
-void setup()
+void printESPInfo()
 {
-  USE_SERIAL.begin( 115200 );
-  USE_SERIAL.print( "\n\n\n\n###\nDEMARRAGE DE L'ESP8266\n" );
+  USE_SERIAL.printf( "ESP CHIP ID          : %d\n", ESP.getChipId()         );
+  USE_SERIAL.printf( "ESP FREE HEAP        : %d\n", ESP.getFreeHeap()       );
+  USE_SERIAL.printf( "ESP FLASH CHIP ID    : %d\n", ESP.getFlashChipId()    );
+  USE_SERIAL.printf( "ESP FLASH CHIP SIZE  : %d\n", ESP.getFlashChipSize()  );
+  USE_SERIAL.printf( "ESP FLASH CHIP SPEED : %d\n", ESP.getFlashChipSpeed() );
+  USE_SERIAL.flush(); // Pour attendre que tous les caractères soient envoyés
+}
 
-  pinMode( LEDrouge, OUTPUT );
-  pinMode( LEDbleue, OUTPUT );
-  onFaitUnePause();
-
+void demarrageServicesWeb()
+{
+  // Démarrage de la connexion WiFi
+  USE_SERIAL.print( "Demarrage de la connexion WiFi .." );
   WiFiMulti.addAP( ssid, password );
   while( WiFiMulti.run() != WL_CONNECTED )
   {
-    delay( 100 );
     USE_SERIAL.print( "." );
+    USE_SERIAL.flush();
+    delay( 100 );
   }
+  USE_SERIAL.print( " OK\n" );
 
-  // start webSocket server
+  // Démarrage du serveur webSocket
+  USE_SERIAL.print( "Demarrage du serveur WebSocket\n" );
   webSocket.begin();
   webSocket.onEvent( webSocketEvent );
 
-  if( MDNS.begin( "esp8266" ) )
-    { USE_SERIAL.println( "MDNS responder started" ); }
+  // Démarrage du mDNS (multicast Domain Name System)
+  USE_SERIAL.printf( "Demarrage du mDNS avec le nom '%s.local' .. ", mDNSName );
+  if( MDNS.begin( mDNSName ) )
+    { USE_SERIAL.print( "OK\n" ); }
+  else
+    { USE_SERIAL.print( "PAS OK\n" ); }
 
-  // index.html
+  // Chargement du fichier “index.html”
+  USE_SERIAL.print( "Chargement du fichier 'index.html'\n" );
   server.on( "/", []()
     { server.send( 200, "text/html", HTML_DOC );
   });
+
+  // Démarrage du serveur
+  USE_SERIAL.print( "Demarrage du serveur\n" );
   server.begin();
 
-  // Add service to MDNS
+  // Ajout des services HTTP et WebSocket au mDNS
+  USE_SERIAL.print( "Ajout des services HTTP et WebSocket au mDNS\n" );
   MDNS.addService( "http", "tcp", 80 );
   MDNS.addService( "ws",   "tcp", 81 );
+}
 
-  USE_SERIAL.print( "\nConnected! IP address: " );
+void setup()
+{
+  // Initialisation de la liaison série
+  USE_SERIAL.begin( 115200 );
+  USE_SERIAL.print( "\n\n\n\n###\n\nDEMARRAGE DE L'ESP8266\n\n" );
+
+  // Initialisation des LED et attente
+  pinMode( LEDrouge, OUTPUT );
+  pinMode( LEDbleue, OUTPUT );
+  onFaitUnePause( 1000 );
+
+  // Démarrage des services web
+  demarrageServicesWeb();
+
+  // Affichage de quelques caractéristiques de l’ESP8266
+  printESPInfo();
+
+  // Fin de l’initialisation
+  USE_SERIAL.print( "Fin de l'initialisation\n" );
+  USE_SERIAL.print( "Adresse IP : " );
   USE_SERIAL.println( WiFi.localIP() );
-  USE_SERIAL.print( "\nSetup finished\n\n###\n\n" );
+  USE_SERIAL.printf( "Nom        : %s.local \n\n###\n\n", mDNSName );
 }
 
 void loop()

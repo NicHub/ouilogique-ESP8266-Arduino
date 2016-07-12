@@ -42,6 +42,7 @@ void setup()
   pinMode( LEDrouge, OUTPUT );
   digitalWrite( LEDbleue, LEDlow );
   digitalWrite( LEDrouge, LEDlow  );
+
   Serial.print( "FIN DU SETUP\n" );
 }
 

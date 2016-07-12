@@ -114,11 +114,8 @@ void webSocketEvent( uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
          "\"GPIO02\":%d}",
          !digitalRead( LEDrouge ),
          !digitalRead( LEDbleue ) );
-
       USE_SERIAL.printf( "%s\n", jsonMsg );
       webSocket.sendTXT( num, jsonMsg );
-
-
       break;
 
     case WStype_TEXT:

@@ -1,6 +1,7 @@
 /*
 
-ESP8266 — TEST DES LED SUR BOARD AMICA
+ESP8266 — TEST DES LED SUR BOARD LoLin & AMICA
+  http://ouilogique.com/NodeMCU_esp8266/
   http://ouilogique.com/NodeMCU_esp8266_amica/
 
 IDE ARDUINO 1.6.9 avec les librairies pour l’ESP8266
@@ -10,6 +11,7 @@ NOTES
   - Sur OSX, les bibliothèques sont installées dans le répertoire :
     ~/Library/Arduino15/packages/
   - La carte Amica a deux LED, une rouge (GPIO 16) et une bleue (GPIO 2).
+  - La carte LoLin n’a qu’une LED bleue (GPIO 2), mais le programme fonctionne quand même.
   - Quelques variables pour cette carte sont définies dans le fichier
     ~/Library/Arduino15/packages/esp8266/hardware/esp8266/2.2.0/variants/nodemcu/pins_arduino.h
 
@@ -33,17 +35,21 @@ static const uint8_t LEDlow   = 1;
 
 void setup()
 {
+  Serial.begin( 115200 );
+  Serial.print( "\n\nSTART\n" );
+
   pinMode( LEDbleue, OUTPUT );
   pinMode( LEDrouge, OUTPUT );
   digitalWrite( LEDbleue, LEDlow );
   digitalWrite( LEDrouge, LEDlow  );
+  Serial.print( "FIN DU SETUP\n" );
 }
 
 void loop()
 {
   digitalWrite( LEDbleue, LEDhigh );
   digitalWrite( LEDrouge, LEDlow  );
-  delay( 60 );
+  delay( 120 );
   digitalWrite( LEDbleue, LEDlow  );
   digitalWrite( LEDrouge, LEDhigh );
   delay( 60 );

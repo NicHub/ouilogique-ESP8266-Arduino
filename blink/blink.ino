@@ -1,7 +1,7 @@
 /*
 
-ESP8266 — TEST DES LED SUR BOARD LoLin & AMICA
-  http://ouilogique.com/NodeMCU_esp8266/
+ESP8266 — TEST DES LED SUR LES BOARDS LoLin & AMICA
+  http://ouilogique.com/NodeMCU_esp8266/#programmation-en-arduino-c
   http://ouilogique.com/NodeMCU_esp8266_amica/
 
 IDE ARDUINO 1.6.9 avec les librairies pour l’ESP8266

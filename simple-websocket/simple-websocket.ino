@@ -2,10 +2,10 @@
 
   simple-websocket.ino
 
-# Upload avec requête POST
+# Upload des fichiers sur l’ESP8266 avec requête POST
 cd data
 curl -F "image=@index.html" http://192.168.1.131/upload
-
+curl -F "image=@img1.jpg" http://192.168.1.131/upload
 
 
  */
@@ -259,13 +259,18 @@ void webSocketEvent( uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
       Serial.printf( "[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload );
 
       // send message to client
-      webSocket.sendTXT(num, "Connected");
+      webSocket.sendTXT( num, "Connected" );
     }
     break;
 
   // Commande reçue
   case WStype_TEXT:
-    Serial.printf("[%u] get Text: %s\n", num, payload);
+    Serial.printf( "length : %d\n", length );
+    char msgConf[ length + 15 ];
+    sprintf( msgConf, "[%u] get Text: %s\n", num, payload );
+    Serial.print( msgConf );
+    webSocket.sendTXT( num, msgConf );
+
     if(payload[0] == '#')
     {
       // we get RGB data

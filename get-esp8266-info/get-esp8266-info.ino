@@ -1,11 +1,14 @@
 /*
 
 AFFICHE QUELQUES CARACTÉRISTIQUES DE L’ESP8266 DANS LA CONSOLE SÉRIE
+====================================================================
 
 # Sources
 https://github.com/esp8266/Arduino/blob/master/doc/libraries.md#user-content-esp-specific-apis
 http://links2004.github.io/Arduino/d4/dd2/class_esp_class.html
 http://www.esp8266.com/viewtopic.php?f=32&t=4696
+
+juillet 2016, ouilogique.com
 
 */
 

@@ -1,52 +1,31 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8" />
-		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>⊛ MOOC LED ⊛</title>
-		<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
-		<link href="style.css" rel="stylesheet" />
-	</head>
-	<body>
-		<div class="container">
-			<h1 class="neon">MOOC<br />Enseignes<br />et afficheurs<br />à LED<br /></h1>
-			<p><a href="/"><img alt="logo EPFL" src="logo_epfl_b.png" /></a></p>
-			<label>Texte à afficher</label>
-			<textarea id="txtLED">#FF00FF</textarea>
-			<button type="button" onclick="envoyerTexte()">Envoyer le&nbsp;texte à&nbsp;l’afficheur</button>
-			<div id="label" class="alert">❧</div>
-		</div>
-		<script>
-var connection = new WebSocket( 'ws://' + location.hostname + ':81/', [ 'arduino' ] );
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>⊛ MOOC LED ⊛</title>
+	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+	<link href="style.css" rel="stylesheet" />
+</head>
+<body>
 
-connection.onopen = function()
-{ connection.send( 'Connect ' + new Date() ); };
+<div class="container">
+	<h1 class="neon">Test WebSocket<br />sur ESP8266</h1>
+	<p><a href="/"><img alt="logo EPFL" src="logo_epfl_b.png" /></a></p>
+	<label>Texte à envoyer via RS232</label>
+	<textarea id="txtLED">#FF00FF</textarea>
+	<button type="button" onclick="envoyerTexte()">Envoyer le&nbsp;texte</button>
+	<div id="label" class="alert">❧</div>
+</div>
 
-connection.onerror = function(error)
-{ console.log( 'WebSocket Error ', error ); };
+<div class="container">
+	<button type="button" onclick="changeLEDbleue()">LED Bleue (GPIO 02)</button>
+	<br/><br/>
+	<button type="button" onclick="changeLEDrouge()">LED Rouge (GPIO 16)</button>
+</div>
 
-connection.onmessage = function(e)
-{ console.log( 'Server: ', e.data ); };
+<script type="text/javascript" src="websocket.js"></script>
 
-function envoyerTexte()
-{
-	var txtLED = document.getElementById( "txtLED" ).value;
-	console.log( txtLED );
-	connection.send( txtLED );
-}
-
-function sleep( milliseconds )
-{
-	var start = new Date().getTime();
-	for( var i = 0; i<1e7; i++ )
-	{
-		if( ( new Date().getTime() - start ) > milliseconds )
-		{
-			break;
-		}
-	}
-}
-		</script>
-	</body>
+</body>
 </html>

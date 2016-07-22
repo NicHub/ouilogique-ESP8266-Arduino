@@ -1,14 +1,41 @@
 /*
 
-  simple-websocket.ino
+SIMPLE-WEBSOCKET.INO
+====================
+
+  Ce croquis utilise la bibliothèque “arduinoWebSockets 2.0.2” de Markus Sattler.
+  https://github.com/Links2004/arduinoWebSockets.git
+  Cette bibliothèque peut être installée directement dans le gestionnaire de bibliothèque de l’IDE Arduino.
+
+  Ce croquis est basé sur les exemples suivants :
+  https://github.com/Links2004/arduinoWebSockets/blob/master/examples/WebSocketServer_LEDcontrol/WebSocketServer_LEDcontrol.ino
+  https://github.com/AdySan/ESPSocket/blob/master/ESPSocket/ESPSocket.ino
+
+# MICROCONTRÔLEUR
+  ESP8266 Amica
+
+# NOTE
+  Pour ne pas mettre à jour le fichier “WifiSettings.h” dans Git utiliser
+  git update-index --skip-worktree WifiSettings.h
+  Et pour le mettre à jour (pas recommandé)
+  git update-index --no-skip-worktree WifiSettings.h
+
+
+
+
+
 
 # Upload des fichiers sur l’ESP8266 avec requête POST
 cd data
 curl -F "image=@index.html" http://192.168.1.131/upload
+curl -F "image=@websocket.js" http://192.168.1.131/upload
 curl -F "image=@img1.jpg" http://192.168.1.131/upload
 
 
- */
+
+juin 2016, ouilogique.com
+
+*/
 
 // Le fichier WifiSettings.h doit être présent
 // et contenir les instructions suivantes :
@@ -31,14 +58,15 @@ curl -F "image=@img1.jpg" http://192.168.1.131/upload
 
 
 ESP8266WiFiMulti WiFiMulti;
-ESP8266WebServer server    = ESP8266WebServer( 80 );
+ESP8266WebServer webServer = ESP8266WebServer( 80 );
 WebSocketsServer webSocket = WebSocketsServer( 81 );
 
 
 const int LED_RED  = D0; // GPIO 16;
 const int LED_BLUE = D4; // GPIO 2;
-#define LED_ON  LOW
-#define LED_OFF HIGH
+#define LED_SET   LOW
+#define LED_CLEAR HIGH
+static const char* mDNSName = "esp8266";
 
 
 
@@ -47,8 +75,23 @@ const int LED_BLUE = D4; // GPIO 2;
 
 
 
-
-
+void onFaitUnePause( unsigned long attente )
+{
+  unsigned long Tf = millis() + attente;
+  Serial.flush();
+  bool status = false;
+  Serial.printf( "On fait une pause de %d ms ", attente );
+  while( millis() < Tf )
+  {
+    digitalWrite( LED_BLUE,  status );
+    digitalWrite( LED_RED, ! status );
+    status = ! status;
+    if( status ) { Serial.print( "." ); }
+    delay( 60 );
+  }
+  Serial.print( " OK\n" );
+  Serial.flush();
+}
 
 
 
@@ -83,7 +126,7 @@ String formatBytes(size_t bytes){
 }
 
 String getContentType(String filename){
-  if(server.hasArg("download")) return "application/octet-stream";
+  if(webServer.hasArg("download")) return "application/octet-stream";
   else if(filename.endsWith(".htm")) return "text/html";
   else if(filename.endsWith(".html")) return "text/html";
   else if(filename.endsWith(".css")) return "text/css";
@@ -108,7 +151,7 @@ bool handleFileRead(String path){
     if(SPIFFS.exists(pathWithGz))
       path += ".gz";
     File file = SPIFFS.open(path, "r");
-    size_t sent = server.streamFile(file, contentType);
+    size_t sent = webServer.streamFile(file, contentType);
     file.close();
     return true;
   }
@@ -116,8 +159,8 @@ bool handleFileRead(String path){
 }
 
 void handleFileUpload(){
-  if(server.uri() != "/upload") return;
-  HTTPUpload& upload = server.upload();
+  if(webServer.uri() != "/upload") return;
+  HTTPUpload& upload = webServer.upload();
   if(upload.status == UPLOAD_FILE_START){
     String filename = upload.filename;
     if(!filename.startsWith("/")) filename = "/"+filename;
@@ -136,40 +179,40 @@ void handleFileUpload(){
 }
 
 void handleFileDelete(){
-  if(server.args() == 0) return server.send(500, "text/plain", "BAD ARGS");
-  String path = server.arg(0);
+  if(webServer.args() == 0) return webServer.send(500, "text/plain", "BAD ARGS");
+  String path = webServer.arg(0);
   Serial.println("handleFileDelete: " + path);
   if(path == "/")
-    return server.send(500, "text/plain", "BAD PATH");
+    return webServer.send(500, "text/plain", "BAD PATH");
   if(!SPIFFS.exists(path))
-    return server.send(404, "text/plain", "FileNotFound");
+    return webServer.send(404, "text/plain", "FileNotFound");
   SPIFFS.remove(path);
-  server.send(200, "text/plain", "");
+  webServer.send(200, "text/plain", "");
   path = String();
 }
 
 void handleFileCreate(){
-  if(server.args() == 0)
-    return server.send(500, "text/plain", "BAD ARGS");
-  String path = server.arg(0);
+  if(webServer.args() == 0)
+    return webServer.send(500, "text/plain", "BAD ARGS");
+  String path = webServer.arg(0);
   Serial.println("handleFileCreate: " + path);
   if(path == "/")
-    return server.send(500, "text/plain", "BAD PATH");
+    return webServer.send(500, "text/plain", "BAD PATH");
   if(SPIFFS.exists(path))
-    return server.send(500, "text/plain", "FILE EXISTS");
+    return webServer.send(500, "text/plain", "FILE EXISTS");
   File file = SPIFFS.open(path, "w");
   if(file)
     file.close();
   else
-    return server.send(500, "text/plain", "CREATE FAILED");
-  server.send(200, "text/plain", "");
+    return webServer.send(500, "text/plain", "CREATE FAILED");
+  webServer.send(200, "text/plain", "");
   path = String();
 }
 
 void handleFileList() {
-  if(!server.hasArg("dir")) {server.send(500, "text/plain", "BAD ARGS"); return;}
+  if(!webServer.hasArg("dir")) {webServer.send(500, "text/plain", "BAD ARGS"); return;}
 
-  String path = server.arg("dir");
+  String path = webServer.arg("dir");
   Serial.println("handleFileList: " + path);
   Dir dir = SPIFFS.openDir(path);
   path = String();
@@ -188,7 +231,7 @@ void handleFileList() {
   }
 
   output += "]";
-  server.send(200, "text/json", output);
+  webServer.send(200, "text/json", output);
 }
 
 //
@@ -227,19 +270,47 @@ void clignoteLED()
 {
   for( unsigned long i=0; i<2; i++ )
   {
-    digitalWrite( LED_BLUE, LED_ON  );
+    digitalWrite( LED_BLUE, LED_SET  );
     delay( 60 );
-    digitalWrite( LED_BLUE, LED_OFF );
+    digitalWrite( LED_BLUE, LED_CLEAR );
     delay( 60 );
   }
 
   for( unsigned long i=0; i<2; i++ )
   {
-    digitalWrite( LED_RED, LED_ON  );
+    digitalWrite( LED_RED, LED_SET  );
     delay( 60 );
-    digitalWrite( LED_RED, LED_OFF );
+    digitalWrite( LED_RED, LED_CLEAR );
     delay( 60 );
   }
+}
+
+// Envoie l’état des GPIO au format JSON
+void WSsendGPIOStates( uint8_t num )
+{
+  char jsonMsg[ 134 ];
+  sprintf( jsonMsg,
+    "{\"GPIO\":{\"G0\":\"%d\",\"G1\":\"%d\",\"G2\":\"%d\",\"G3\":\"%d\",\"G4\":\"%d\",\"G5\":\"%d\",\"G9\":\"%d\",\"G10\":\"%d\",\"G12\":\"%d\",\"G13\":\"%d\",\"G14\":\"%d\",\"G15\":\"%d\",\"G16\":\"%d\"}}",
+    !digitalRead(  0 ),
+    !digitalRead(  1 ),
+    !digitalRead(  2 ),
+    !digitalRead(  3 ),
+    !digitalRead(  4 ),
+    !digitalRead(  5 ),
+    // Pas de GPIO 6, 7, 8
+    !digitalRead(  9 ),
+    !digitalRead( 10 ),
+    // Pas de GPIO 11
+    !digitalRead( 12 ),
+    !digitalRead( 13 ),
+    !digitalRead( 14 ),
+    !digitalRead( 15 ),
+    !digitalRead( 16 )
+  );
+
+  Serial.printf( "%s\n", jsonMsg );
+  webSocket.sendTXT( num, jsonMsg );
+
 }
 
 void webSocketEvent( uint8_t num, WStype_t type, uint8_t * payload, size_t length )
@@ -259,7 +330,7 @@ void webSocketEvent( uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
       Serial.printf( "[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload );
 
       // send message to client
-      webSocket.sendTXT( num, "Connected" );
+      WSsendGPIOStates( num );
     }
     break;
 
@@ -269,14 +340,14 @@ void webSocketEvent( uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
     char msgConf[ length + 15 ];
     sprintf( msgConf, "[%u] get Text: %s\n", num, payload );
     Serial.print( msgConf );
-    webSocket.sendTXT( num, msgConf );
+    // webSocket.sendTXT( num, msgConf );
 
-    if(payload[0] == '#')
+    if( payload[0] == '#' )
     {
       // we get RGB data
 
       // decode rgb data
-      uint32_t rgb = (uint32_t) strtol((const char *) &payload[1], NULL, 16);
+      uint32_t rgb = (uint32_t) strtol( (const char *) &payload[1], NULL, 16 );
 
       // analogWrite(LED_RED,  ((rgb >> 16) & 0xFF) );
       // analogWrite(LED_BLUE, ((rgb >> 0) & 0xFF)  );
@@ -289,33 +360,32 @@ void webSocketEvent( uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
       Serial.print( "BB = " );
       Serial.println( BB );
       if( RR > 127 )
-        digitalWrite( LED_RED, LOW  );
+        digitalWrite( LED_RED, LED_SET  );
       else
-        digitalWrite( LED_RED, HIGH );
+        digitalWrite( LED_RED, LED_CLEAR );
       if( BB > 127 )
-        digitalWrite( LED_BLUE, LOW  );
+        digitalWrite( LED_BLUE, LED_SET  );
       else
-        digitalWrite( LED_BLUE, HIGH );
+        digitalWrite( LED_BLUE, LED_CLEAR );
+      delay( 100 );
+      WSsendGPIOStates( num );
     }
     break;
   }
 }
 
-
-void setup()
+void printESPInfo()
 {
-  // Initialisation du port série
-  Serial.begin( 115200 );
-  Serial.print( "\n\nDEMO WEBSOCKET\n==============\n\n" );
+  Serial.printf( "ESP CHIP ID          : %d\n", ESP.getChipId()         );
+  Serial.printf( "ESP FREE HEAP        : %d\n", ESP.getFreeHeap()       );
+  Serial.printf( "ESP FLASH CHIP ID    : %d\n", ESP.getFlashChipId()    );
+  Serial.printf( "ESP FLASH CHIP SIZE  : %d\n", ESP.getFlashChipSize()  );
+  Serial.printf( "ESP FLASH CHIP SPEED : %d\n", ESP.getFlashChipSpeed() );
+  Serial.flush(); // Pour attendre que tous les caractères soient envoyés
+}
 
-  // Initialisation des LED
-  pinMode( LED_RED,  OUTPUT );
-  pinMode( LED_BLUE, OUTPUT );
-  digitalWrite( LED_BLUE, LED_OFF );
-  digitalWrite( LED_RED,  LED_OFF );
-  clignoteLED();
-
-  // Initialisation du système de fichiers
+void initSystemeFichiers()
+{
   SPIFFS.begin();
   {
     Dir dir = SPIFFS.openDir( "/" );
@@ -330,44 +400,62 @@ void setup()
     }
     Serial.printf("\n");
   }
+}
 
+void initServicesWeb()
+{
   // Initialisation de la connexion WiFi
+  Serial.print( "Initialisation de la connexion WiFi .." );
   WiFiMulti.addAP( ssid, password );
   while( WiFiMulti.run() != WL_CONNECTED )
   {
-    delay( 100 );
     Serial.print( "." );
+    Serial.flush();
+    delay( 100 );
   }
+  Serial.print( " OK\n" );
 
   // Démarrage du serveur WebSocket
+  Serial.print( "Demarrage du serveur WebSocket\n" );
   webSocket.begin();
   webSocket.onEvent( webSocketEvent );
 
-  // Démarrage du mDNS
-  if( MDNS.begin( "esp8266" ) )
-    { Serial.println( "\nmDNS OK\n" ); }
+  // Démarrage du mDNS (multicast Domain Name System)
+  Serial.printf( "Demarrage du mDNS avec le nom '%s.local' .. ", mDNSName );
+  if( MDNS.begin( mDNSName ) )
+    { Serial.print( "OK\n" ); }
+  else
+    { Serial.print( "PAS OK\n" ); }
 
-  // Sert le fichier index.html
-  server.on( "/", []()
+  // Chargement du fichier “index.html”
+  Serial.print( "Chargement du fichier 'index.html'\n" );
+  webServer.on( "/", []()
   {
-    if(!handleFileRead("/index.html")) server.send(404, "text/plain", "FileNotFound");
+    if( ! handleFileRead( "/index.html" ) ) webServer.send( 404, "text/plain", "FileNotFound" );
   });
 
-  server.on("/list", HTTP_GET, handleFileList);
+  // Gestion de l’URL “/list”
+  Serial.print( "Gestion de l'URL '/list'\n" );
+  webServer.on( "/list", HTTP_GET, handleFileList );
 
-  server.on("/upload", HTTP_POST, [](){ server.send(200, "text/plain", ""); }, handleFileUpload);
+  // Gestion de l’URL “/upload
+  Serial.print( "Gestion de l'URL '/upload'\n" );
+  webServer.on( "/upload", HTTP_POST, [](){ webServer.send( 200, "text/plain", "" ); }, handleFileUpload );
 
   // Pour toutes les autres URL.
-  server.onNotFound([]()
+  Serial.print( "Gestion des autres URL\n" );
+  webServer.onNotFound([]()
   {
-    if( !handleFileRead( server.uri() ) )
-      server.send( 404, "text/plain", "FileNotFound" );
+    if( !handleFileRead( webServer.uri() ) )
+      webServer.send( 404, "text/plain", "FileNotFound" );
   });
 
-  // Démarrage du serveur
-  server.begin();
+  // Démarrage du serveur web
+  Serial.print( "Demarrage du serveur web\n" );
+  webServer.begin();
 
-  // Ajoute les services au mDNS
+  // Ajout des services HTTP et WebSocket au mDNS
+  Serial.print( "Ajout des services HTTP et WebSocket au mDNS\n" );
   MDNS.addService( "http", "tcp", 80 );
   MDNS.addService( "ws",   "tcp", 81 );
 
@@ -376,10 +464,37 @@ void setup()
   Serial.println( WiFi.localIP() );
 }
 
+void setup()
+{
+  // Initialisation du port série
+  Serial.begin( 115200 );
+  Serial.print( "\n\nDEMO WEBSOCKET\n==============\n\n" );
+
+  // Initialisation des LED
+  pinMode( LED_RED,  OUTPUT );
+  pinMode( LED_BLUE, OUTPUT );
+  digitalWrite( LED_BLUE, LED_CLEAR );
+  digitalWrite( LED_RED,  LED_CLEAR );
+  onFaitUnePause( 4000 );
+
+  // Initialisation du système de fichiers
+  initSystemeFichiers();
+
+  // Démarrage des services web
+  initServicesWeb();
+
+  // Affichage de quelques caractéristiques de l’ESP8266
+  printESPInfo();
+
+  // Fin de l’initialisation
+  Serial.print( "Fin de l'initialisation\n" );
+  Serial.print( "Adresse IP : " );
+  Serial.println( WiFi.localIP() );
+  Serial.printf( "Nom        : %s.local \n\n###\n\n", mDNSName );
+}
+
 void loop()
 {
   webSocket.loop();
-  server.handleClient();
+  webServer.handleClient();
 }
-
-

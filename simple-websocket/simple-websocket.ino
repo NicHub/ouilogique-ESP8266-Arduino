@@ -288,9 +288,9 @@ void clignoteLED()
 // Envoie l’état des GPIO au format JSON
 void WSsendGPIOStates( uint8_t num )
 {
-  char jsonMsg[ 134 ];
+  char jsonMsg[ 120 ];
   sprintf( jsonMsg,
-    "{\"GPIO\":{\"G0\":\"%d\",\"G1\":\"%d\",\"G2\":\"%d\",\"G3\":\"%d\",\"G4\":\"%d\",\"G5\":\"%d\",\"G9\":\"%d\",\"G10\":\"%d\",\"G12\":\"%d\",\"G13\":\"%d\",\"G14\":\"%d\",\"G15\":\"%d\",\"G16\":\"%d\"}}",
+    "{\"GPIO\":{\"0\":\"%d\",\"1\":\"%d\",\"2\":\"%d\",\"3\":\"%d\",\"4\":\"%d\",\"5\":\"%d\",\"9\":\"%d\",\"10\":\"%d\",\"12\":\"%d\",\"13\":\"%d\",\"14\":\"%d\",\"15\":\"%d\",\"16\":\"%d\"}}",
     !digitalRead(  0 ),
     !digitalRead(  1 ),
     !digitalRead(  2 ),

@@ -5,57 +5,54 @@ var LEDrougeLastValue;
 var LEDbleueLastValue;
 
 
-connection.onopen = function(){
-  console.log( 'Connexion établie ' );
+connection.onopen = function() {
+  console.log( 'Connexion établie' );
   connection.send( 'PAGE WEB - Connexion etablie : ' + new Date() );
 };
 
-connection.onerror = function( error ){
+connection.onerror = function( error ) {
   console.log( 'Erreur WebSocket ', error );
 };
 
-connection.onmessage = function( e ){
+connection.onmessage = function( e ) {
   console.log( 'L’ESP8266 dit : ', e.data );
+  console.log( 'length : ', e.data.length );
   var ESP8266rep = JSON.parse( e.data );
   console.log( 'ESP8266rep.GPIO = ', ESP8266rep.GPIO );
   console.log( 'ESP8266rep.GPIO.G2 = ', ESP8266rep.GPIO.G2 );
   console.log( 'ESP8266rep.GPIO.G16 = ', ESP8266rep.GPIO.G16 );
-  LEDrougeLastValue = ESP8266rep.GPIO.G16;
-  LEDbleueLastValue = ESP8266rep.GPIO.G2;
+
+  console.log( 'ESP8266rep.GPIO[ 2 ] = ', ESP8266rep.GPIO[ 2 ] );
+  console.log( 'ESP8266rep.GPIO[ 16 ] = ', ESP8266rep.GPIO[ 16 ] );
+
+  LEDrougeLastValue = ESP8266rep.GPIO[ 16 ];
+  LEDbleueLastValue = ESP8266rep.GPIO[  2 ];
 };
 
-function envoyerTexte()
-{
+function envoyerTexte() {
 	var txtLED = document.getElementById( "txtLED" ).value;
 	console.log( 'PAGE WEB - Envoi de : ' + txtLED );
 	connection.send( txtLED );
 }
 
-function changeLEDrouge()
-{
-  if( LEDrougeLastValue == 0 )
-  {
+function changeLEDrouge() {
+  if( LEDrougeLastValue == 0 ) {
     var rgb = '#FF0000';
     LEDrougeLastValue = 1;
-  }
-  else
-  {
+  } else {
     var rgb = '#000000';
     LEDrougeLastValue = 0;
   }
-  console.log( 'PAGE WEB - RGB: ' + rgb);
+  console.log( 'PAGE WEB - RGB: ' + rgb );
   connection.send( rgb );
 }
 
 function changeLEDbleue()
 {
-  if( LEDbleueLastValue == 0 )
-  {
+  if( LEDbleueLastValue == 0 ) {
     var rgb = '#0000FF';
     LEDbleueLastValue = 1;
-  }
-  else
-  {
+  } else {
     var rgb = '#000000';
     LEDbleueLastValue = 0;
   }
@@ -69,8 +66,6 @@ function sleep( milliseconds )
 	for( var i = 0; i<1e7; i++ )
 	{
 		if( ( new Date().getTime() - start ) > milliseconds )
-		{
-			break;
-		}
+		  {	break; }
 	}
 }

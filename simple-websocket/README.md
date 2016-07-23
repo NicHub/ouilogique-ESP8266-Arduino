@@ -32,12 +32,15 @@ Créer un fichier `WifiSettings.h` à la racine du projet et contenant les infor
 
 ## Compiler et télécharger le programme
 
-Tout est dans le titre...
+Tout est dans le titre... (CMD + U ou CTRL + U)
 
 ## Téléchargement des fichiers du serveur web de l’ESP8266
 
-Lors du premier téléchargement, il est préférable d’utiliser le gestionnaire *esp8266fs* qui permet de télécharger tous les fichiers en une fois. Comme il est très lent, il est préférable d’utiliser la commande `curl` dans le terminal `bash` pour télécharger un fichier à la fois. Cette commande ne fonctionnera que lorsque l’ESP sera flashé. Exemples de commande :
+Lors du premier téléchargement, il est préférable d’utiliser le gestionnaire *esp8266fs* qui permet de télécharger tous les fichiers en une fois. Comme il est très lent, il est préférable d’utiliser la commande `curl` dans le terminal `bash` lorsqu’on ne veut télécharger qu’un fichier à la fois. Cette commande ne fonctionnera que lorsque l’ESP sera flashé avec le programme `simple-websocket.ino`.
 
+**Exemples de commande :**
+
+	cd data
 	curl -F "image=@index.html" http://192.168.1.131/upload
 	curl -F "image=@websocket.js" http://192.168.1.131/upload
 	curl -F "image=@img1.jpg" http://192.168.1.131/upload
@@ -55,7 +58,7 @@ Ensuite on peut utiliser l’interface web de l’ESP avec un navigateur interne
 
 http://192.168.1.131
 
-Il est également possible d’utiliser le nom de domaine configuré dans le programme. Mais certains navigateurs (Safari en l’occurrence) peuvent ne pas arriver à résoudre l’adresse.
+Il est également possible d’utiliser le nom de domaine configuré dans le programme `simple-websocket.ino`. Mais certains navigateurs, comme Safari, n’arrivent pas à résoudre l’adresse.
 
 http://esp8266.local
 

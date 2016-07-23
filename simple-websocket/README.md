@@ -19,6 +19,11 @@ Les instructions détaillées se trouvent [sur mon blog](http://ouilogique.com/N
 - Changer le type de carte dans le menu `Outils/Type de carte` et choisir `NodeMCU 1.0 (ESP-12E Module)`.
 - Dans le menu `Croquis/Inclure une Bibliothèque/Gérer les bibliothèques`, inclure la librairie `WebSockets` de Markus Sattler.
 - Installer le gestionnaire de téléchargement *esp8266fs*. Voir <https://github.com/esp8266/arduino-esp8266fs-plugin/>
+	- Télécharger [le fichier zip](https://github.com/esp8266/arduino-esp8266fs-plugin/releases/tag/0.2.0)
+	- Créer le dossier `~/Documents/Arduino/tools/` s’il n’esiste pas.
+	- Extraire le contenu du fichier zip et le copier dans le répertoire `~/Documents/Arduino/tools/`. Au final, il n’y a qu’un seul fichier `~/Documents/Arduino/tools/ESP8266FS/tool/esp8266fs.jar`.
+	- Redémarrer l’IDE Arduino et le menu `Outils` doit maintenant contenir la commande `ESP8266 Sketch Data Upload`.
+	- Lors de l’utilisation d’*esp8266fs*, il faut que le moniteur série de l’IDE soit fermé, sinon une erreur est générée.
 
 
 

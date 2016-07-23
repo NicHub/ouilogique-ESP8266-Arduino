@@ -69,6 +69,7 @@ const int LED_BLUE = D4; // GPIO 2;
 static const char* mDNSName = "esp8266";
 
 
+void webSocketEvent( uint8_t num, WStype_t type, uint8_t * payload, size_t length );
 
 
 
@@ -313,67 +314,6 @@ void WSsendGPIOStates( uint8_t num )
 
 }
 
-void webSocketEvent( uint8_t num, WStype_t type, uint8_t * payload, size_t length )
-{
-  switch( type )
-  {
-
-  // Déconnexion
-  case WStype_DISCONNECTED:
-    Serial.printf( "[%u] Disconnected!\n", num );
-    break;
-
-  // Connexion
-  case WStype_CONNECTED:
-    {
-      IPAddress ip = webSocket.remoteIP( num );
-      Serial.printf( "[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload );
-
-      // send message to client
-      WSsendGPIOStates( num );
-    }
-    break;
-
-  // Commande reçue
-  case WStype_TEXT:
-    Serial.printf( "length : %d\n", length );
-    char msgConf[ length + 15 ];
-    sprintf( msgConf, "[%u] get Text: %s\n", num, payload );
-    Serial.print( msgConf );
-    // webSocket.sendTXT( num, msgConf );
-
-    if( payload[0] == '#' )
-    {
-      // we get RGB data
-
-      // decode rgb data
-      uint32_t rgb = (uint32_t) strtol( (const char *) &payload[1], NULL, 16 );
-
-      // analogWrite(LED_RED,  ((rgb >> 16) & 0xFF) );
-      // analogWrite(LED_BLUE, ((rgb >> 0) & 0xFF)  );
-
-      long RR = ((rgb >> 16) & 0xFF);
-      long BB = ((rgb >> 0) & 0xFF);
-
-      Serial.print( "RR = " );
-      Serial.println( RR );
-      Serial.print( "BB = " );
-      Serial.println( BB );
-      if( RR > 127 )
-        digitalWrite( LED_RED, LED_SET  );
-      else
-        digitalWrite( LED_RED, LED_CLEAR );
-      if( BB > 127 )
-        digitalWrite( LED_BLUE, LED_SET  );
-      else
-        digitalWrite( LED_BLUE, LED_CLEAR );
-      delay( 100 );
-      WSsendGPIOStates( num );
-    }
-    break;
-  }
-}
-
 void printESPInfo()
 {
   Serial.printf( "ESP CHIP ID          : %d\n", ESP.getChipId()         );
@@ -462,6 +402,74 @@ void initServicesWeb()
   // Setup terminé
   Serial.print( "Setup OK\nAdresse IP : " );
   Serial.println( WiFi.localIP() );
+}
+
+
+
+
+
+
+
+
+void webSocketEvent( uint8_t num, WStype_t type, uint8_t * payload, size_t length )
+{
+  switch( type )
+  {
+
+  // Déconnexion
+  case WStype_DISCONNECTED:
+    Serial.printf( "[%u] Disconnected!\n", num );
+    break;
+
+  // Connexion
+  case WStype_CONNECTED:
+    {
+      IPAddress ip = webSocket.remoteIP( num );
+      Serial.printf( "[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload );
+
+      // send message to client
+      WSsendGPIOStates( num );
+    }
+    break;
+
+  // Commande reçue
+  case WStype_TEXT:
+    Serial.printf( "length : %d\n", length );
+    char msgConf[ length + 15 ];
+    sprintf( msgConf, "[%u] get Text: %s\n", num, payload );
+    Serial.print( msgConf );
+    // webSocket.sendTXT( num, msgConf );
+
+    if( payload[0] == '#' )
+    {
+      // we get RGB data
+
+      // decode rgb data
+      uint32_t rgb = (uint32_t) strtol( (const char *) &payload[1], NULL, 16 );
+
+      // analogWrite(LED_RED,  ((rgb >> 16) & 0xFF) );
+      // analogWrite(LED_BLUE, ((rgb >> 0) & 0xFF)  );
+
+      long RR = ((rgb >> 16) & 0xFF);
+      long BB = ((rgb >> 0) & 0xFF);
+
+      Serial.print( "RR = " );
+      Serial.println( RR );
+      Serial.print( "BB = " );
+      Serial.println( BB );
+      if( RR > 127 )
+        digitalWrite( LED_RED, LED_SET  );
+      else
+        digitalWrite( LED_RED, LED_CLEAR );
+      if( BB > 127 )
+        digitalWrite( LED_BLUE, LED_SET  );
+      else
+        digitalWrite( LED_BLUE, LED_CLEAR );
+      delay( 100 );
+      WSsendGPIOStates( num );
+    }
+    break;
+  }
 }
 
 void setup()

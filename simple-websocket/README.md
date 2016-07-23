@@ -5,7 +5,7 @@ Ce programme permet de communiquer avec un ESP8266 avec le protocole WebSocket. 
 
 # Matériel requis
 
-- Un module ESP8266. De préférence un modèle 12E avec deux LED, comme les Amica.
+- Un module ESP8266. De préférence [un modèle 12E avec deux LED, comme les Amica](http://ouilogique.com/NodeMCU_esp8266_amica/).
 
 # Logiciels requis
 

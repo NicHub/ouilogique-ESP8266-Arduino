@@ -1,5 +1,5 @@
-simple-websocket
-================
+SIMPLE-WEBSOCKET.INO
+====================
 
 Ce programme permet de communiquer avec un ESP8266 avec le protocole WebSocket. L’ESP8266 se connecte au réseau WiFi qu’on lui indique dans le programme et il est ensuite possible de communiquer avec lui avec un navigateur web sur le même réseau.
 
@@ -19,7 +19,7 @@ Ce programme permet de communiquer avec un ESP8266 avec le protocole WebSocket. 
 - Dans le menu `Croquis/Inclure une Bibliothèque/Gérer les bibliothèques`, inclure la librairie `WebSockets` de Markus Sattler.
 - Installer le gestionnaire de téléchargement *esp8266fs*. Voir <https://github.com/esp8266/arduino-esp8266fs-plugin/>
 	- Télécharger [le fichier zip](https://github.com/esp8266/arduino-esp8266fs-plugin/releases/tag/0.2.0)
-	- Créer le dossier `~/Documents/Arduino/tools/` s’il n’esiste pas.
+	- Créer le dossier `~/Documents/Arduino/tools/` s’il n’existe pas.
 	- Extraire le contenu du fichier zip et le copier dans le répertoire `~/Documents/Arduino/tools/`. Au final, il n’y a qu’un seul fichier `~/Documents/Arduino/tools/ESP8266FS/tool/esp8266fs.jar`.
 	- Redémarrer l’IDE Arduino et le menu `Outils` doit maintenant contenir la commande `ESP8266 Sketch Data Upload`.
 	- Lors de l’utilisation d’*esp8266fs*, il faut que le moniteur série de l’IDE soit fermé, sinon une erreur est générée.

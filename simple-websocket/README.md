@@ -13,7 +13,8 @@ Ce programme permet de communiquer avec un ESP8266 avec le protocole WebSocket. 
 
 ## Configuration de l’IDE Arduino
 
-- Installer la bibliothèque pour programmer l’ESP8266 dans l’IDE Arduino. Dans les préférences de l’IDE, sous “URL de gestionnaire de cartes supplémentaires”, ajouter le lien suivant : `http://arduino.esp8266.com/stable/package_esp8266com_index.json`. Puis dans le menu `Outils/Type de carte/Gestionnaire de carte` installer la famille `esp8266 by ESP8266 Community`.
+- Installer la bibliothèque pour programmer l’ESP8266 dans l’IDE Arduino. Dans les préférences de l’IDE, sous “URL de gestionnaire de cartes supplémentaires”, ajouter le lien suivant : `http://arduino.esp8266.com/stable/package_esp8266com_index.json`.
+- Dans le menu `Outils/Type de carte/Gestionnaire de carte` installer la famille `esp8266 by ESP8266 Community`.
 - Changer le type de carte dans le menu `Outils/Type de carte` et choisir `NodeMCU 1.0 (ESP-12E Module)`.
 - Dans le menu `Croquis/Inclure une Bibliothèque/Gérer les bibliothèques`, inclure la librairie `WebSockets` de Markus Sattler.
 - Installer le gestionnaire de téléchargement *esp8266fs*. Voir <https://github.com/esp8266/arduino-esp8266fs-plugin/>

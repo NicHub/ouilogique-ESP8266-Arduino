@@ -13,8 +13,6 @@ Ce programme permet de communiquer avec un ESP8266 avec le protocole WebSocket. 
 
 ## Configuration de l’IDE Arduino
 
-Les instructions détaillées se trouvent [sur mon blog](http://ouilogique.com/NodeMCU_esp8266/#programmation-en-arduino-c). En bref :
-
 - Installer la bibliothèque pour programmer l’ESP8266 dans l’IDE Arduino. Dans les préférences de l’IDE, sous “URL de gestionnaire de cartes supplémentaires”, ajouter le lien suivant : `http://arduino.esp8266.com/stable/package_esp8266com_index.json`. Puis dans le menu `Outils/Type de carte/Gestionnaire de carte` installer la famille `esp8266 by ESP8266 Community`.
 - Changer le type de carte dans le menu `Outils/Type de carte` et choisir `NodeMCU 1.0 (ESP-12E Module)`.
 - Dans le menu `Croquis/Inclure une Bibliothèque/Gérer les bibliothèques`, inclure la librairie `WebSockets` de Markus Sattler.
@@ -25,6 +23,7 @@ Les instructions détaillées se trouvent [sur mon blog](http://ouilogique.com/N
 	- Redémarrer l’IDE Arduino et le menu `Outils` doit maintenant contenir la commande `ESP8266 Sketch Data Upload`.
 	- Lors de l’utilisation d’*esp8266fs*, il faut que le moniteur série de l’IDE soit fermé, sinon une erreur est générée.
 
+Il y a quelques précisions supplémentaires [sur mon blog](http://ouilogique.com/NodeMCU_esp8266/#programmation-en-arduino-c).
 
 
 

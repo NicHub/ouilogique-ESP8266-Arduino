@@ -33,7 +33,7 @@ connection.onmessage = function( e ) {
   else if( "TIME" in ESP8266rep ) {
     console.log( 'ESP8266rep.TIME = ', ESP8266rep.TIME );
     var pTime = document.getElementById( "horloge" );
-    pTime.innerHTML = "Dernière commande reçue à " + ESP8266rep.TIME;
+    pTime.innerHTML = "Heure de démarrage de l’ESP " + ESP8266rep.TIME;
   }
 
 };

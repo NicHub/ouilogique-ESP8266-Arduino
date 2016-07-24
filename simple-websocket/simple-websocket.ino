@@ -57,7 +57,7 @@ juin 2016, ouilogique.com
 const char* mDNSName = "esp8266";
 extern ESP8266WebServer webServer;
 extern WebSocketsServer webSocket;
-
+char *jsonMsgTime;
 
 extern void webSocketEvent( uint8_t num, WStype_t type, uint8_t * payload, size_t length )
 {
@@ -77,6 +77,7 @@ extern void webSocketEvent( uint8_t num, WStype_t type, uint8_t * payload, size_
 
       // send message to client
       WSsendGPIOStates( num );
+      webSocket.sendTXT( num, jsonMsgTime );
     }
     break;
 
@@ -116,11 +117,6 @@ extern void webSocketEvent( uint8_t num, WStype_t type, uint8_t * payload, size_
       delay( 100 );
       WSsendGPIOStates( num );
     }
-
-    char *jsonMsgTime = getNTPTime();
-    Serial.printf( "L'HEURE EST : %s\n", jsonMsgTime );
-    webSocket.sendTXT( 0, jsonMsgTime );
-
     break;
   }
 }
@@ -149,9 +145,8 @@ void setup()
 
   // Demande l’heure sur un serveur NTP
   udp.begin( localPort );
-  char *jsonMsg = getNTPTime();
-  Serial.printf( "L'HEURE EST : %s\n", jsonMsg );
-  webSocket.sendTXT( 0, jsonMsg );
+  jsonMsgTime = getNTPTime();
+  Serial.printf( "L'HEURE DE DEMARRAGE EST : %s\n", jsonMsgTime );
 
   // Fin de l’initialisation
   Serial.print( "Fin de l'initialisation\n" );

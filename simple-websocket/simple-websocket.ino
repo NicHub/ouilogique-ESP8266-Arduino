@@ -31,10 +31,15 @@ la possibilité de charger des fichiers sur l’ESP avec des requêtes
 POST qui peuvent être exécutées directement depuis le terminal.
 
     cd data
-    curl -F "image=@index.html" http://192.168.1.131/upload
-    curl -F "image=@websocket.js" http://192.168.1.131/upload
-    curl -F "image=@img1.jpg" http://192.168.1.131/upload
-
+    ip=$(ping -c 1 esp8266.local | gawk -F'[()]' '/PING/{print $2}')
+    echo $ip
+    curl                                             \
+        -F "file=@img1.jpg"        http://$ip/upload \
+        -F "file=@img2.jpg"        http://$ip/upload \
+        -F "file=@index.html"      http://$ip/upload \
+        -F "file=@logo.png"        http://$ip/upload \
+        -F "file=@style.css"       http://$ip/upload \
+        -F "file=@websocket.js"    http://$ip/upload
 
 
 juin 2016, ouilogique.com

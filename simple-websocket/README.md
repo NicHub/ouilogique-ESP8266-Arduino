@@ -47,11 +47,18 @@ Lors du premier téléchargement, il est préférable d’utiliser le gestionnai
 
 **Exemples de commande :**
 
-	cd data
-	curl -F "image=@index.html" http://192.168.1.131/upload
-	curl -F "image=@websocket.js" http://192.168.1.131/upload
-	curl -F "image=@img1.jpg" http://192.168.1.131/upload
+> Note : la commande `curl` est beaucoup plus rapide avec l’adressse IP qu’avec le nom de domaine.
 
+    cd data
+    ip=$(ping -c 1 esp8266.local | gawk -F'[()]' '/PING/{print $2}')
+    echo $ip
+    curl                                             \
+        -F "file=@img1.jpg"        http://$ip/upload \
+        -F "file=@img2.jpg"        http://$ip/upload \
+        -F "file=@index.html"      http://$ip/upload \
+        -F "file=@logo.png"        http://$ip/upload \
+        -F "file=@style.css"       http://$ip/upload \
+        -F "file=@websocket.js"    http://$ip/upload
 
 
 

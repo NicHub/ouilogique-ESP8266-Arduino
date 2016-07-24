@@ -116,6 +116,11 @@ extern void webSocketEvent( uint8_t num, WStype_t type, uint8_t * payload, size_
       delay( 100 );
       WSsendGPIOStates( num );
     }
+
+    char *jsonMsgTime = getNTPTime();
+    Serial.printf( "L'HEURE EST : %s\n", jsonMsgTime );
+    webSocket.sendTXT( 0, jsonMsgTime );
+
     break;
   }
 }
@@ -141,6 +146,12 @@ void setup()
 
   // Affichage de quelques caractéristiques de l’ESP8266
   printESPInfo();
+
+  // Demande l’heure sur un serveur NTP
+  udp.begin( localPort );
+  char *jsonMsg = getNTPTime();
+  Serial.printf( "L'HEURE EST : %s\n", jsonMsg );
+  webSocket.sendTXT( 0, jsonMsg );
 
   // Fin de l’initialisation
   Serial.print( "Fin de l'initialisation\n" );

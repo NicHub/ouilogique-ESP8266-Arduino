@@ -18,15 +18,24 @@ connection.onmessage = function( e ) {
   console.log( 'L’ESP8266 dit : ', e.data );
   console.log( 'length : ', e.data.length );
   var ESP8266rep = JSON.parse( e.data );
-  console.log( 'ESP8266rep.GPIO = ', ESP8266rep.GPIO );
-  console.log( 'ESP8266rep.GPIO.G2 = ', ESP8266rep.GPIO.G2 );
-  console.log( 'ESP8266rep.GPIO.G16 = ', ESP8266rep.GPIO.G16 );
 
-  console.log( 'ESP8266rep.GPIO[ 2 ] = ', ESP8266rep.GPIO[ 2 ] );
-  console.log( 'ESP8266rep.GPIO[ 16 ] = ', ESP8266rep.GPIO[ 16 ] );
+  if( "GPIO" in ESP8266rep ) {
+    console.log( 'ESP8266rep.GPIO = ', ESP8266rep.GPIO );
+    console.log( 'ESP8266rep.GPIO.G2 = ', ESP8266rep.GPIO.G2 );
+    console.log( 'ESP8266rep.GPIO.G16 = ', ESP8266rep.GPIO.G16 );
 
-  LEDrougeLastValue = ESP8266rep.GPIO[ 16 ];
-  LEDbleueLastValue = ESP8266rep.GPIO[  2 ];
+    console.log( 'ESP8266rep.GPIO[ 2 ] = ', ESP8266rep.GPIO[ 2 ] );
+    console.log( 'ESP8266rep.GPIO[ 16 ] = ', ESP8266rep.GPIO[ 16 ] );
+
+    LEDrougeLastValue = ESP8266rep.GPIO[ 16 ];
+    LEDbleueLastValue = ESP8266rep.GPIO[  2 ];
+  }
+  else if( "TIME" in ESP8266rep ) {
+    console.log( 'ESP8266rep.TIME = ', ESP8266rep.TIME );
+    var pTime = document.getElementById( "horloge" );
+    pTime.innerHTML = "Dernière commande reçue à " + ESP8266rep.TIME;
+  }
+
 };
 
 function envoyerTexte() {

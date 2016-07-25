@@ -81,6 +81,11 @@ button {
 button:hover {
 	cursor: pointer;
 }
+button.pressed {
+	color: white;
+	border: 1px solid white;
+	background-color: firebrick;
+}
 div.alert {
 	color: #999;
 	font-size: 14pt;

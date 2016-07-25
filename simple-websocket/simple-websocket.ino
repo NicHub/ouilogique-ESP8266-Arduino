@@ -143,10 +143,10 @@ void setup()
   // Affichage de quelques caractéristiques de l’ESP8266
   printESPInfo();
 
-  // Demande l’heure sur un serveur NTP
+  // Demande l’heure à un serveur NTP
   udp.begin( localPort );
   jsonMsgTime = getNTPTime();
-  Serial.printf( "L'HEURE DE DEMARRAGE EST : %s\n", jsonMsgTime );
+  Serial.printf( "HEURE DE DEMARRAGE DE L'ESP8266 : %s\n", jsonMsgTime );
 
   // Fin de l’initialisation
   Serial.print( "Fin de l'initialisation\n" );

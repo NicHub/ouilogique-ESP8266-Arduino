@@ -14,6 +14,10 @@ connection.onerror = function( error ) {
   console.log( 'Erreur WebSocket ', error );
 };
 
+connection.onclose = function( error ) {
+  console.log( 'Closing WebSocket ', error );
+};
+
 connection.onmessage = function( e ) {
   console.log( 'L’ESP8266 dit : ', e.data );
   console.log( 'length : ', e.data.length );
@@ -46,9 +50,11 @@ function envoyerTexte() {
 
 function changeLEDrouge() {
   if( LEDrougeLastValue == 0 ) {
+    addClass( btn1, "pressed" );
     var rgb = '#FF0000';
     LEDrougeLastValue = 1;
   } else {
+    removeAllClasses( btn1 );
     var rgb = '#000000';
     LEDrougeLastValue = 0;
   }
@@ -58,14 +64,17 @@ function changeLEDrouge() {
 
 function changeLEDbleue()
 {
+  var btn1 = document.getElementById( "btn1" );
   if( LEDbleueLastValue == 0 ) {
+    addClass( btn0, "pressed" );
     var rgb = '#0000FF';
     LEDbleueLastValue = 1;
   } else {
+    removeAllClasses( btn0 );
     var rgb = '#000000';
     LEDbleueLastValue = 0;
   }
-  console.log( 'PAGE WEB - RGB: ' + rgb);
+  console.log( 'PAGE WEB - RGB: ' + rgb );
   connection.send( rgb );
 }
 
@@ -77,4 +86,18 @@ function sleep( milliseconds )
 		if( ( new Date().getTime() - start ) > milliseconds )
 		  {	break; }
 	}
+}
+
+function removeAllClasses( elem ) {
+  elem.className = "";
+}
+
+function addClass( elem, clazz ) {
+  if( !elemHasClass( elem, clazz ) ) {
+    elem.className += " " + clazz;
+  }
+}
+
+function elemHasClass( elem, clazz ) {
+  return new RegExp( "( |^)" + clazz + "( |$)" ).test( elem.className );
 }

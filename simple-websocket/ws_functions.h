@@ -409,6 +409,10 @@ void initServicesWeb()
  *  Lookup the IP address for the host name instead */
 //IPAddress timeServer(129, 6, 15, 28); // time.nist.gov NTP server
 IPAddress timeServerIP; // time.nist.gov NTP server address
+
+// Le serveur NTP d’Apple est le plus rapide de tous ceux que j’ai testés.
+// http://www.pool.ntp.org/fr/
+// const char* ntpServerName = "ch.pool.ntp.org";
 // const char* ntpServerName = "time.nist.gov";
 // const char* ntpServerName = "ntp.metas.ch";
 const char* ntpServerName = "time.apple.com";
@@ -491,10 +495,10 @@ char *getNTPTime()
     // print Unix time:
     Serial.println(epoch);
 
-    unsigned long TimeZoneUTC = 2;
+    unsigned long TimeZone = 2;
     sprintf( jsonMsg,
       "{\"TIME\":\"%02d:%02d:%02d\"}",
-      ( epoch % 86400L ) / 3600 + TimeZoneUTC,
+      ( epoch % 86400L ) / 3600 + TimeZone,
       ( epoch %   3600 ) / 60,
       ( epoch %     60 )
     );

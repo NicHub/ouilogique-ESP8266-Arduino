@@ -3,7 +3,7 @@ html {
 	color: #fff;
 	font-family: "Helvetica Neue", sans-serif;
 	text-align: center;
-    min-height: 100%;
+	min-height: 100%;
 	/* Source : http://uigradients.com/# */
 	background: #182848;
 	background: -webkit-linear-gradient( to bottom, #4b6cb7 , #182848 );
@@ -51,19 +51,6 @@ textarea {
 	padding: 12px;
 	width: 100%;
 }
-/*a.btn {
-	background-color: firebrick;
-	border-radius: 4px;
-	border: 1px solid firebrick;
-	color: white;
-	display: block;
-	font-size: 20pt;
-	margin: 15px auto;
-	padding: 6px;
-	text-align: center;
-	text-decoration: none;
-	vertical-align: middle;
-}*/
 button {
 	-webkit-appearance: none;
 	-webkit-user-select: none;

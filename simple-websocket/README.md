@@ -82,3 +82,11 @@ Si tout à fonctionné normalement, le navigateur affiche le fichier index.html�
 
 ![Capture d’écran simple-websocket.ino](https://github.com/NicHub/ouilogique-ESP8266-Arduino/raw/master/simple-websocket/images/simple-websocket-screenshot-01.png)
 
+
+[[ https://github.com/NicHub/ouilogique-ESP8266-Arduino/raw/master/simple-websocket/images/simple-websocket-screenshot-01.png | width = 300px ]]
+
+
+![Capture d’écran simple-websocket.ino](https://github.com/NicHub/ouilogique-ESP8266-Arduino/raw/master/simple-websocket/images/simple-websocket-screenshot-01.png =250x)
+
+
+![Capture d’écran simple-websocket.ino](https://github.com/NicHub/ouilogique-ESP8266-Arduino/raw/master/simple-websocket/images/simple-websocket-screenshot-01.png){: width="36px" }

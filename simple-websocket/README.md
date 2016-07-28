@@ -3,6 +3,8 @@ SIMPLE-WEBSOCKET.INO
 
 Ce programme permet de communiquer avec un ESP8266 avec le protocole WebSocket. L’ESP8266 se connecte au réseau WiFi qu’on lui indique dans le programme et il est ensuite possible de communiquer avec lui avec un navigateur web sur le même réseau.
 
+![Capture d’écran simple-websocket.ino](https://github.com/NicHub/ouilogique-ESP8266-Arduino/raw/master/simple-websocket/images/simple-websocket-screenshot-01.png | width=100)
+
 # Matériel requis
 
 - Un module ESP8266. De préférence [un modèle 12E avec deux LED, comme les Amica](http://ouilogique.com/NodeMCU_esp8266_amica/).
@@ -78,5 +80,5 @@ http://esp8266.local
 
 Si tout à fonctionné normalement, le navigateur affiche le fichier index.html :
 
-![](https://github.com/NicHub/ouilogique-ESP8266-Arduino/raw/master/simple-websocket/images/simple-websocket-screenshot-01.png)
+![Capture d’écran simple-websocket.ino](https://github.com/NicHub/ouilogique-ESP8266-Arduino/raw/master/simple-websocket/images/simple-websocket-screenshot-01.png)
 

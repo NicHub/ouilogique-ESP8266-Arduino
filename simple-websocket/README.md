@@ -3,7 +3,7 @@ SIMPLE-WEBSOCKET.INO
 
 Ce programme permet de communiquer avec un ESP8266 avec le protocole WebSocket. L’ESP8266 se connecte au réseau WiFi qu’on lui indique dans le programme et il est ensuite possible de communiquer avec lui avec un navigateur web sur le même réseau.
 
-<p><a href="https://github.com/NicHub/ouilogique-ESP8266-Arduino/raw/master/simple-websocket/images/simple-websocket-screenshot-01.png" target="_blank"><img src="https://github.com/NicHub/ouilogique-ESP8266-Arduino/raw/master/simple-websocket/images/simple-websocket-screenshot-01.png" alt="Capture d’écran simple-websocket.ino" style="max-width:300px;width:300px;" width="300px;" /></a></p>
+<p><a href="https://github.com/NicHub/ouilogique-ESP8266-Arduino/raw/master/simple-websocket/images/simple-websocket-screenshot-01.png" target="_blank"><img src="https://github.com/NicHub/ouilogique-ESP8266-Arduino/raw/master/simple-websocket/images/simple-websocket-screenshot-01.png" alt="Capture d’écran simple-websocket.ino" width="400px;" /></a></p>
 
 # Matériel requis
 
@@ -82,15 +82,3 @@ Si tout à fonctionné normalement, le navigateur affiche le fichier index.html�
 
 ![Capture d’écran simple-websocket.ino](https://github.com/NicHub/ouilogique-ESP8266-Arduino/raw/master/simple-websocket/images/simple-websocket-screenshot-01.png)
 
-<!--
-[[ https://github.com/NicHub/ouilogique-ESP8266-Arduino/raw/master/simple-websocket/images/simple-websocket-screenshot-01.png | width = 300px ]]
-
-
-![Capture d’écran simple-websocket.ino](https://github.com/NicHub/ouilogique-ESP8266-Arduino/raw/master/simple-websocket/images/simple-websocket-screenshot-01.png =250x)
-
-
-![Capture d’écran simple-websocket.ino](https://github.com/NicHub/ouilogique-ESP8266-Arduino/raw/master/simple-websocket/images/simple-websocket-screenshot-01.png){: width="36px" }
-
-
-![Capture d’écran simple-websocket.ino](https://github.com/NicHub/ouilogique-ESP8266-Arduino/raw/master/simple-websocket/images/simple-websocket-screenshot-01.png){:width="36px"}
--->

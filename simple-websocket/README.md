@@ -72,8 +72,11 @@ Ensuite on peut utiliser l’interface web de l’ESP avec un navigateur interne
 
 http://192.168.1.131
 
-Il est également possible d’utiliser le nom de domaine configuré dans le programme `simple-websocket.ino`. Mais certains navigateurs, comme Safari, n’arrivent pas à résoudre l’adresse.
+Il est également possible d’utiliser le nom de domaine configuré dans le programme `simple-websocket.ino`. Mais certains navigateurs, comme Safari, n’arrivent pas à résoudre l’adresse :
 
 http://esp8266.local
 
+Si tout à fonctionné normalement, le navigateur affiche le fichier index.html :
+
+![](https://github.com/NicHub/ouilogique-ESP8266-Arduino/raw/master/simple-websocket/images/simple-websocket-screenshot-01.png)
 

@@ -3,32 +3,43 @@
 SIMPLE-WEBSOCKET.INO
 ====================
 
-  Ce croquis utilise la bibliothèque “arduinoWebSockets 2.0.2” de Markus Sattler.
+https://github.com/NicHub/ouilogique-ESP8266-Arduino/tree/master/simple-websocket
+
+# BIBLIOTHÈQUES UTILISÉES
+  WebSockets 2.0.4 de Markus Sattler
   https://github.com/Links2004/arduinoWebSockets.git
-  Cette bibliothèque peut être installée directement dans le gestionnaire de bibliothèque de l’IDE Arduino.
+  Disponible dans le gestionnaire de bibliothèques de l’IDE Arduino
+  (rechercher “WebSockets for Arduino (Server+ Client)”)
+
+  Time 1.5.0 de Michael Margolis
+  http://playground.arduino.cc/code/time
+  Disponible dans le gestionnaire de bibliothèques de l’IDE Arduino
+  (rechercher “Timekeeping functionality for Arduino”)
+
+# MODULES TESTÉS
+  ESP8266-12E Amica
+  ESP8266-01
+
+# NOTES
+  Le fichier `WifiSettings.h` doit être créé manuellement à la racine du projet
+  et contenir les instructions suivantes :
+  const char* ssid     = "***";
+  const char* password = "***";
+
+  Pour ne pas mettre à jour le fichier `WifiSettings.h` dans Git, utiliser
+  git update-index --skip-worktree WifiSettings.h
+  Et pour le mettre à jour (pas recommandé)
+  git update-index --no-skip-worktree WifiSettings.h
 
   Ce croquis est basé sur les exemples suivants :
   https://github.com/Links2004/arduinoWebSockets/blob/master/examples/WebSocketServer_LEDcontrol/WebSocketServer_LEDcontrol.ino
   https://github.com/AdySan/ESPSocket/blob/master/ESPSocket/ESPSocket.ino
 
-# MICROCONTRÔLEUR
-  ESP8266 Amica
-
-# NOTE
-  Pour ne pas mettre à jour le fichier “WifiSettings.h” dans Git utiliser
-  git update-index --skip-worktree WifiSettings.h
-  Et pour le mettre à jour (pas recommandé)
-  git update-index --no-skip-worktree WifiSettings.h
-
 # UPLOAD DES FICHIERS DU SERVEUR WEB DE L’ESP8266
 
-# Avec esp8266fs
-Voir https://github.com/esp8266/arduino-esp8266fs-plugin/
-
-# Avec requête POST
-Comme esp8266fs est excessivement lent, la librarie ws_functions offre
-la possibilité de charger des fichiers sur l’ESP avec des requêtes
-POST qui peuvent être exécutées directement depuis le terminal.
+## Avec des requêtes POST
+  Il faut que l’ESP soit flashé avec `simple-websocket.ino` au préalable pour que ça fonctionne.
+  Testé sur Mac OSX et Win 7 avec Cygwin.
 
     cd data
     ip=$(ping -c 1 esp8266.local | gawk -F'[()]' '/PING/{print $2}')
@@ -41,16 +52,19 @@ POST qui peuvent être exécutées directement depuis le terminal.
         -F "file=@style.css"       http://$ip/upload \
         -F "file=@websocket.js"    http://$ip/upload
 
+## Avec esp8266fs
+  Le fichiers doivent impérativement se trouver dans un répertoire appelé `data`.
+  Cette façon de procéder est très lente et pose problème sous Win 7.
+  La procédure d’installation et d’utilisation est ici :
+  https://github.com/esp8266/arduino-esp8266fs-plugin/
+
+# SUIVI DES MODIFICATIONS
+2016-08-11, par NJ, Mise à jour des commentaires suite au test de JMP sur Win7 avec un ESP8266-01
 
 juin 2016, ouilogique.com
 
 */
 
-
-// Le fichier WifiSettings.h doit être présent
-// et contenir les instructions suivantes :
-// const char* ssid     = "***";
-// const char* password = "***";
 #include "WifiSettings.h"
 #include "ws_functions.h"
 

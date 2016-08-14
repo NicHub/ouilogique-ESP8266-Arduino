@@ -32,6 +32,15 @@ Il y a quelques précisions supplémentaires [sur mon blog](http://ouilogique.co
 
 # Préparation
 
+## Type de module
+
+Ce programme fonctionne sur ESP-01 et ESP-12E. Suivant le type de module utilisé, il faut adapter les lignes suivantes (exemple pour ESP-01) :
+
+ligne 26 de `ws_functions.h`, indiquer `#define ESP_MODULE_TYPE 'ESP-01'`
+
+ligne 7 de `websocket.js`, indiquer `var ESP_MODULE_TYPE = 'ESP-01'`
+
+
 ## Paramètres WiFi
 
 Créer un fichier `WifiSettings.h` à la racine du projet et contenant les informations suivantes :

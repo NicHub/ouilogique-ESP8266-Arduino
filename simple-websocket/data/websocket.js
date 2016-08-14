@@ -4,6 +4,24 @@ var connection = new WebSocket( 'ws://' + location.hostname + ':81/', [ 'arduino
 var LEDrougeLastValue;
 var LEDbleueLastValue;
 
+var ESP_MODULE_TYPE = 'ESP-12E'
+
+if( ESP_MODULE_TYPE == 'ESP-01' ) {
+  console.log( "on est sur un ESP-01" );
+  var LEDrougeGPIO = 0;
+  var LEDbleueGPIO = 2;
+} else if( ESP_MODULE_TYPE == 'ESP-12E' ) {
+  console.log( "on est sur un ESP-12E" );
+  var LEDrougeGPIO = 16;
+  var LEDbleueGPIO = 2;
+}
+
+document.addEventListener( "DOMContentLoaded", function( event ) {
+    var btn0 = document.getElementById( "btn0" );
+    var btn1 = document.getElementById( "btn1" );
+    btn0.innerHTML = 'LED bleue (GPIO ' + LEDbleueGPIO + ')'
+    btn1.innerHTML = 'LED rouge (GPIO ' + LEDrougeGPIO + ')'
+});
 
 connection.onopen = function() {
   console.log( 'Connexion établie' );
@@ -15,7 +33,7 @@ connection.onerror = function( error ) {
 };
 
 connection.onclose = function( error ) {
-  console.log( 'Closing WebSocket ', error );
+  console.log( 'Fermeture WebSocket ', error );
 };
 
 connection.onmessage = function( e ) {
@@ -24,28 +42,30 @@ connection.onmessage = function( e ) {
   var ESP8266rep = JSON.parse( e.data );
 
   if( "GPIO" in ESP8266rep ) {
-    console.log( 'ESP8266rep.GPIO = ', ESP8266rep.GPIO );
-    console.log( 'ESP8266rep.GPIO.G2 = ', ESP8266rep.GPIO.G2 );
+    console.log( 'ESP8266rep.GPIO     = ', ESP8266rep.GPIO     );
+    console.log( 'ESP8266rep.GPIO.G0  = ', ESP8266rep.GPIO.G0  );
+    console.log( 'ESP8266rep.GPIO.G2  = ', ESP8266rep.GPIO.G2  );
     console.log( 'ESP8266rep.GPIO.G16 = ', ESP8266rep.GPIO.G16 );
 
-    console.log( 'ESP8266rep.GPIO[ 2 ] = ', ESP8266rep.GPIO[ 2 ] );
-    console.log( 'ESP8266rep.GPIO[ 16 ] = ', ESP8266rep.GPIO[ 16 ] );
+    console.log( 'ESP8266rep.GPIO[ ' + LEDrougeGPIO + ' ] = ' + ESP8266rep.GPIO[ LEDrougeGPIO ] );
+    console.log( 'ESP8266rep.GPIO[ ' + LEDbleueGPIO + ' ] = ' + ESP8266rep.GPIO[ LEDbleueGPIO ] );
 
-    LEDrougeLastValue = ESP8266rep.GPIO[ 16 ];
-    LEDbleueLastValue = ESP8266rep.GPIO[  2 ];
+    LEDrougeLastValue = ESP8266rep.GPIO[ LEDrougeGPIO ];
+    LEDbleueLastValue = ESP8266rep.GPIO[ LEDbleueGPIO ];
   }
   else if( "TIME" in ESP8266rep ) {
     console.log( 'ESP8266rep.TIME = ', ESP8266rep.TIME );
+    var times = ESP8266rep.TIME.split( " " );
     var pTime = document.getElementById( "horloge" );
-    pTime.innerHTML = "Heure de démarrage de l’ESP " + ESP8266rep.TIME;
+    pTime.innerHTML = "Heure de démarrage de l’ESP<br/><br/>" + times[ 0 ] + "<br/>" + times[ 1 ];
   }
 
 };
 
 function envoyerTexte() {
-	var txtLED = document.getElementById( "txtLED" ).value;
-	console.log( 'PAGE WEB - Envoi de : ' + txtLED );
-	connection.send( txtLED );
+  var txtLED = document.getElementById( "txtLED" ).value;
+  console.log( 'PAGE WEB - Envoi de : ' + txtLED );
+  connection.send( txtLED );
 }
 
 function changeLEDrouge() {
@@ -62,8 +82,7 @@ function changeLEDrouge() {
   connection.send( rgb );
 }
 
-function changeLEDbleue()
-{
+function changeLEDbleue() {
   var btn1 = document.getElementById( "btn1" );
   if( LEDbleueLastValue == 0 ) {
     addClass( btn0, "pressed" );
@@ -78,14 +97,12 @@ function changeLEDbleue()
   connection.send( rgb );
 }
 
-function sleep( milliseconds )
-{
-	var start = new Date().getTime();
-	for( var i = 0; i<1e7; i++ )
-	{
-		if( ( new Date().getTime() - start ) > milliseconds )
-		  {	break; }
-	}
+function sleep( milliseconds ) {
+  var start = new Date().getTime();
+  for( var i = 0; i<1e7; i++ ) {
+    if( ( new Date().getTime() - start ) > milliseconds )
+      { break; }
+  }
 }
 
 function removeAllClasses( elem ) {

@@ -141,6 +141,9 @@ void setup()
   Serial.begin( 115200 );
   Serial.print( "\n\nDEMO WEBSOCKET\n==============\n\n" );
 
+  // Affichage de quelques caractéristiques de l’ESP8266
+  printESPInfo();
+
   // Initialisation des LED
   pinMode( LED_RED,  OUTPUT );
   pinMode( LED_BLUE, OUTPUT );
@@ -153,9 +156,6 @@ void setup()
 
   // Démarrage des services web
   initServicesWeb();
-
-  // Affichage de quelques caractéristiques de l’ESP8266
-  printESPInfo();
 
   // Demande l’heure à un serveur NTP
   udpInit();

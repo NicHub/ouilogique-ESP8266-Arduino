@@ -23,9 +23,14 @@ ESP8266WiFiMulti WiFiMulti;
 ESP8266WebServer webServer = ESP8266WebServer( 80 );
 WebSocketsServer webSocket = WebSocketsServer( 81 );
 
-
-const int LED_RED  = D0; // GPIO 16;
-const int LED_BLUE = D4; // GPIO 2;
+#define ESP_MODULE_TYPE 'ESP-12E'
+#if ESP_MODULE_TYPE == 'ESP-01'
+static const uint8_t LED_RED  = 0; // GPIO 0;
+static const uint8_t LED_BLUE = 2; // GPIO 2;
+#elif ESP_MODULE_TYPE == 'ESP-12E'
+static const uint8_t LED_RED  = D0; // GPIO 16;
+static const uint8_t LED_BLUE = D4; // GPIO 2;
+#endif
 #define LED_SET   LOW
 #define LED_CLEAR HIGH
 extern const char* mDNSName;
@@ -278,16 +283,29 @@ void WSsendGPIOStates( uint8_t num )
 
 void printESPInfo()
 {
-  Serial.printf( "ESP CHIP ID          : %d\n", ESP.getChipId()         );
-  Serial.printf( "ESP FREE HEAP        : %d\n", ESP.getFreeHeap()       );
-  Serial.printf( "ESP FLASH CHIP ID    : %d\n", ESP.getFlashChipId()    );
-  Serial.printf( "ESP FLASH CHIP SIZE  : %d\n", ESP.getFlashChipSize()  );
-  Serial.printf( "ESP FLASH CHIP SPEED : %d\n", ESP.getFlashChipSpeed() );
+  //ESP.getVcc() ⇒ may be used to measure supply voltage. ESP needs to reconfigure the ADC at startup in order for this feature to be available. ⇒ https://github.com/esp8266/Arduino/blob/master/doc/libraries.md#user-content-esp-specific-apis
+  Serial.printf( "ESP.getFreeHeap()              : %d\n",   ESP.getFreeHeap() );   //  returns the free heap size.
+  Serial.printf( "ESP.getChipId()                : 0x%X\n", ESP.getChipId() );   //  returns the ESP8266 chip ID as a 32-bit integer.
+  Serial.printf( "ESP.getSdkVersion()            : %d\n",   ESP.getSdkVersion() );
+  Serial.printf( "ESP.getBootVersion()           : %d\n",   ESP.getBootVersion() );
+  Serial.printf( "ESP.getBootMode()              : %d\n",   ESP.getBootMode() );
+  Serial.printf( "ESP.getCpuFreqMHz()            : %d\n",   ESP.getCpuFreqMHz() );
+  Serial.printf( "ESP.getFlashChipId()           : 0x%X\n", ESP.getFlashChipId() );
+  Serial.printf( "ESP.getFlashChipRealSize()     : %d\n",   ESP.getFlashChipRealSize() );
+  Serial.printf( "ESP.getFlashChipSize()         : %d\n",   ESP.getFlashChipSize() );  //returns the flash chip size, in bytes, as seen by the SDK (may be less than actual size).
+  Serial.printf( "ESP.getFlashChipSpeed()        : %d\n",   ESP.getFlashChipSpeed() ); // returns the flash chip frequency, in Hz.
+  Serial.printf( "ESP.getFlashChipMode()         : %d\n",   ESP.getFlashChipMode() );
+  Serial.printf( "ESP.getFlashChipSizeByChipId() : 0x%X\n", ESP.getFlashChipSizeByChipId() );
+  Serial.printf( "ESP.getSketchSize()            : %d\n",   ESP.getSketchSize() );
+  Serial.printf( "ESP.getFreeSketchSpace()       : %d\n",   ESP.getFreeSketchSpace() );
+  Serial.printf( "ESP.getCycleCount()            : %d\n",   ESP.getCycleCount() ); // returns the cpu instruction cycle count since start as an unsigned 32-bit. This is useful for accurate timing of very short actions like bit banging.
+
   Serial.flush(); // Pour attendre que tous les caractères soient envoyés
 }
 
 void initSystemeFichiers()
 {
+  Serial.print( "Initialisation du systeme de fichiers\n" );
   SPIFFS.begin();
   {
     Dir dir = SPIFFS.openDir( "/" );
@@ -300,7 +318,7 @@ void initSystemeFichiers()
         fileName.c_str(), formatBytes(fileSize).c_str()
       );
     }
-    Serial.printf("\n");
+    Serial.print( "Fin de l'initialisation du systeme de fichiers\n" );
   }
 }
 

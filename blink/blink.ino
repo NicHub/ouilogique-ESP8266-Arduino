@@ -28,8 +28,14 @@ juin 2016, ouilogique.com
 
 */
 
+#define ESP_MODULE_TYPE 'ESP-12E'
+#if ESP_MODULE_TYPE == 'ESP-01'
+static const uint8_t LEDrouge = 0; // GPIO 0;
+static const uint8_t LEDbleue = 2; // GPIO 2;
+#elif ESP_MODULE_TYPE == 'ESP-12E'
 static const uint8_t LEDrouge = D0; // GPIO 16;
 static const uint8_t LEDbleue = D4; // GPIO 2;
+#endif
 static const uint8_t LEDhigh  = 0;
 static const uint8_t LEDlow   = 1;
 
@@ -54,4 +60,5 @@ void loop()
   digitalWrite( LEDbleue, LEDlow  );
   digitalWrite( LEDrouge, LEDhigh );
   delay( 60 );
+  Serial.print( "." );
 }

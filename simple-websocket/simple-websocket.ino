@@ -53,13 +53,19 @@ https://github.com/NicHub/ouilogique-ESP8266-Arduino/tree/master/simple-websocke
         -F "file=@websocket.js"    http://$ip/upload
 
 ## Avec esp8266fs
-  Le fichiers doivent impérativement se trouver dans un répertoire appelé `data`.
-  Cette façon de procéder est très lente et pose problème sous Win 7.
+  Cette façon de procéder est très lente !
+
   La procédure d’installation et d’utilisation est ici :
   https://github.com/esp8266/arduino-esp8266fs-plugin/
 
-# SUIVI DES MODIFICATIONS
-2016-08-11, par NJ, Mise à jour des commentaires suite au test de JMP sur Win7 avec un ESP8266-01
+  Le fichiers doivent impérativement se trouver dans un répertoire appelé `data`
+  se trouvant à la racine du projet.
+
+  Il faut que le paramètre “Flash Size” dans le menu “Outils” de l’IDE Arduino soit réglé à une valeur
+  plus petite ou égale à la quantité de flash disponible. Cette valeur peut être déterminée
+  avec le programme get-esp8266-info.ino :
+  https://github.com/NicHub/ouilogique-ESP8266-Arduino/blob/master/get-esp8266-info/get-esp8266-info.ino
+
 
 juin 2016, ouilogique.com
 

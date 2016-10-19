@@ -58,6 +58,10 @@ https://github.com/NicHub/ouilogique-Arduino/blob/master/horloge-cycles-ultradie
 # MICROCONTRÔLEUR
     ESP8266 12E (Amica ou LoLin)
 
+# NOTES
+    La fonction Serial.print perturbe la RTC. Il faut mettre les Serial.print à la
+    fin des procédures.
+
 juin 2016, ouilogique.com
 
 */
@@ -181,7 +185,6 @@ void initEcran()
   display.setCursor( 5, 40 );
   display.print( F( "ULTRADIENS" ) );
   display.display();
-  delay( 1000 );
 }
 
 void initHorloge()
@@ -218,16 +221,12 @@ void initHorloge()
     display.setCursor( 5, 0 );
     display.print( F( "ECHEC  NTP" ) );
   }
+  display.display();
+  delay( 1000 );
 
-  // Affiche l’heure sur le port série
+  // Préparation de l’affichage de l’heure actuelle
   DateTime now = RTC.now();
   char nowChar[ 19 ];
-  sprintf(
-    nowChar,
-    "Heure actuelle : %1d-%02d-%02d %02d:%02d:%02d",
-    now.year(), now.month(),  now.day(),
-    now.hour(), now.minute(), now.second() );
-  Serial.println( nowChar );
 
   // Affiche l’heure à l’écran
   sprintf(
@@ -236,6 +235,8 @@ void initHorloge()
     now.year(), now.month(),  now.day() );
   display.setCursor( 5, 19 );
   display.print( nowChar );
+  display.display();
+  delay( 1000 );
 
   sprintf(
     nowChar,
@@ -243,8 +244,16 @@ void initHorloge()
     now.hour(), now.minute(), now.second() );
   display.setCursor( 20, 40 );
   display.print( nowChar );
-
   display.display();
+
+  // Affiche l’heure sur le port série
+  sprintf(
+    nowChar,
+    "Heure actuelle : %1d-%02d-%02d %02d:%02d:%02d",
+    now.year(), now.month(),  now.day(),
+    now.hour(), now.minute(), now.second() );
+  Serial.println( nowChar );
+
   delay( 2000 );
 }
 
@@ -494,4 +503,12 @@ void loop()
     now = RTC.now();
     T2 = now.secondstime();
   }
+
+  char nowChar[ 19 ];
+  sprintf(
+    nowChar,
+    "Heure actuelle : %1d-%02d-%02d %02d:%02d:%02d",
+    now.year(), now.month(),  now.day(),
+    now.hour(), now.minute(), now.second() );
+  Serial.println( nowChar );
 }

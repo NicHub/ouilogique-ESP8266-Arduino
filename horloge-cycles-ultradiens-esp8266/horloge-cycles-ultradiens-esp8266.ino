@@ -10,7 +10,7 @@ Voir
 https://github.com/NicHub/ouilogique-Arduino/blob/master/horloge-cycles-ultradiens-arduino/horloge-cycles-ultradiens-arduino.ino
 
 
-## CONNEXIONS ESP8266 Amica
+# CONNEXIONS ESP8266 12E (Amica ou Lolin)
     GND          ⇒   GND
     VCC          ⇒   +3.3V
     I²C SDA      ⇒   pin D2  (GPIO  4) + pullup 4.7 kΩ
@@ -56,7 +56,7 @@ https://github.com/NicHub/ouilogique-Arduino/blob/master/horloge-cycles-ultradie
     SCK   ⇒   pin D1  (GPIO  5) + pullup 4.7 kΩ
 
 # MICROCONTRÔLEUR
-    ESP8266 Amica
+    ESP8266 12E (Amica ou LoLin)
 
 juin 2016, ouilogique.com
 
@@ -77,6 +77,8 @@ Adafruit_SSD1306 display( OLED_RESET );
 #define dYCarillon 25
 bool carillonGet = false;
 
+#include "ouilogique_ntp.h"
+
 const int bBtn1  = 14;
 const int bBtn2  =  0;
 #define btn1Get ! digitalRead( bBtn1 )
@@ -86,7 +88,6 @@ const int bBtn2  =  0;
 RTC_DS1307 RTC = RTC_DS1307();
 
 const int SSD1306_i2c = 0x3C;
-DateTime now;
 
 #define LEDrouge  16 // D0 ⇒ GPIO 16
 #define LEDbleue   2 // D4 ⇒ GPIO 2
@@ -151,6 +152,100 @@ void clignote()
   }
   digitalWrite( LEDbleue, LEDeteinte );
   digitalWrite( LEDrouge, LEDeteinte );
+}
+
+void initGPIO()
+{
+  pinMode( bBtn1, INPUT_PULLUP );
+  // pinMode( bBtn2, INPUT_PULLUP );
+  // pinMode( bBtn1, INPUT );
+  // pinMode( bBtn2, INPUT );
+
+  // Initialisation et clignotement les LED
+  pinMode( LEDbleue, OUTPUT );
+  pinMode( LEDrouge, OUTPUT );
+  clignote();
+}
+
+void initEcran()
+{
+  // Initialisation de l’écran
+  display.begin( SSD1306_SWITCHCAPVCC, 0x3C );
+  display.clearDisplay();
+  display.setTextColor( INVERSE );
+  display.setTextSize( 2 );
+  display.setCursor( 25, 0 );
+  display.print( F( "HORLOGE" ) );
+  display.setCursor( 20, 19 );
+  display.print( F( "A CYCLES" ) );
+  display.setCursor( 5, 40 );
+  display.print( F( "ULTRADIENS" ) );
+  display.display();
+  delay( 1000 );
+}
+
+void initHorloge()
+{
+  // Initialisation de l’horloge
+  RTC.begin();
+
+  // Demande l’heure à un serveur NTP et règle l’heure interne (pas
+  // celle du RTC) en conséquence.
+  udpInit( 2 );
+  int *dateHeureInt;
+  dateHeureInt = getESP8266intarrayTime();
+
+  // Prépare l’affichage du statut NTP
+  display.clearDisplay();
+  display.setTextColor( INVERSE );
+  display.setTextSize( 2 );
+
+  // Réglage de l’horloge
+  if( dateHeureInt[ 0 ] > 2015 )
+  {
+    RTC.adjust( DateTime(
+      dateHeureInt[ 0 ],
+      dateHeureInt[ 1 ],
+      dateHeureInt[ 2 ],
+      dateHeureInt[ 3 ],
+      dateHeureInt[ 4 ],
+      dateHeureInt[ 5 ] ) );
+    display.setCursor( 25, 0 );
+    display.print( F( "NTP  OK" ) );
+  }
+  else
+  {
+    display.setCursor( 5, 0 );
+    display.print( F( "ECHEC  NTP" ) );
+  }
+
+  // Affiche l’heure sur le port série
+  DateTime now = RTC.now();
+  char nowChar[ 19 ];
+  sprintf(
+    nowChar,
+    "Heure actuelle : %1d-%02d-%02d %02d:%02d:%02d",
+    now.year(), now.month(),  now.day(),
+    now.hour(), now.minute(), now.second() );
+  Serial.println( nowChar );
+
+  // Affiche l’heure à l’écran
+  sprintf(
+    nowChar,
+    "%1d-%02d-%02d",
+    now.year(), now.month(),  now.day() );
+  display.setCursor( 5, 19 );
+  display.print( nowChar );
+
+  sprintf(
+    nowChar,
+    "%02d:%02d:%02d",
+    now.hour(), now.minute(), now.second() );
+  display.setCursor( 20, 40 );
+  display.print( nowChar );
+
+  display.display();
+  delay( 2000 );
 }
 
 void horloge()
@@ -358,31 +453,14 @@ void setup()
 {
   Serial.begin( 115200 );
 
-  pinMode( bBtn1, INPUT_PULLUP );
-  // pinMode( bBtn2, INPUT_PULLUP );
-  // pinMode( bBtn1, INPUT );
-  // pinMode( bBtn2, INPUT );
-
-  // Initialisation et clignotement les LED
-  pinMode( LEDbleue, OUTPUT );
-  pinMode( LEDrouge, OUTPUT );
-  clignote();
-
-  // Initialisation de l’horloge
-  RTC.begin();
+  // Initialisation des GPIO
+  initGPIO();
 
   // Initialisation de l’écran
-  display.begin( SSD1306_SWITCHCAPVCC, 0x3C );
-  display.clearDisplay();
-  display.setTextColor( INVERSE );
-  display.setTextSize( 2 );
-  display.setCursor( 25, 0 );
-  display.print( F( "HORLOGE" ) );
-  display.setCursor( 20, 19 );
-  display.print( F( "A CYCLES" ) );
-  display.setCursor( 5, 40 );
-  display.print( F( "ULTRADIENS" ) );
-  display.display();
+  initEcran();
+
+  // Initialisation de l’horloge
+  initHorloge();
 
   // Initialisation du carillon
   carillon();

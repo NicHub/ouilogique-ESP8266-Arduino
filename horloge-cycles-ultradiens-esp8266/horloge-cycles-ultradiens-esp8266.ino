@@ -11,56 +11,62 @@ https://github.com/NicHub/ouilogique-Arduino/blob/master/horloge-cycles-ultradie
 
 
 # CONNEXIONS ESP8266 12E (Amica ou Lolin)
-    GND          ⇒   GND
-    VCC          ⇒   +3.3V
-    I²C SDA      ⇒   pin D2  (GPIO  4) + pullup 4.7 kΩ
-    I²C SCL      ⇒   pin D1  (GPIO  5) + pullup 4.7 kΩ
-    Buzzer +     ⇒   pin D6  (GPIO 12)
-    Buzzer -     ⇒   GND
-    Bouton 1 +   ⇒   pin D5  (GPIO 14)
-    Bouton 1 -   ⇒   GND
-    Bouton 2 +   ⇒   pin D3  (GPIO  0)
-    Bouton 2 -   ⇒   GND
+  GND          ⇒   GND
+  VCC          ⇒   +3.3V
+  I²C SDA      ⇒   pin D2  (GPIO  4) + pullup 4.7 kΩ
+  I²C SCL      ⇒   pin D1  (GPIO  5) + pullup 4.7 kΩ
+  Buzzer +     ⇒   pin D6  (GPIO 12)
+  Buzzer -     ⇒   GND
+  Bouton 1 +   ⇒   pin D5  (GPIO 14)
+  Bouton 1 -   ⇒   GND
+  Bouton 2 +   ⇒   pin D3  (GPIO  0)
+  Bouton 2 -   ⇒   GND
 
-# HORLOGE DS1307 I²C
-    ## RÉFÉRENCE AliExpress
-    http://www.aliexpress.com/item/5pcs-lot-Tiny-RTC-I2C-AT24C32-DS1307-Real-Time-Clock-Module-Board-For-Arduino-With-A/32327865928.html
+# HORLOGE DS1307 I²C (RTC = Real Time Clock)
+  ## RÉFÉRENCE AliExpress
+  http://www.aliexpress.com/item/5pcs-lot-Tiny-RTC-I2C-AT24C32-DS1307-Real-Time-Clock-Module-Board-For-Arduino-With-A/32327865928.html
 
-    ## ADRESSES I²C
-    0x50 (EEPROM AT24C32)
-    0x68 (DS1307)
+  ## ADRESSES I²C
+  0x50 (EEPROM AT24C32)
+  0x68 (DS1307)
 
-    ## LIBRAIRIE Adafruit
-    https://github.com/adafruit/RTClib.git
+  ## LIBRAIRIE Adafruit
+  https://github.com/adafruit/RTClib.git
 
-    ## CONNEXIONS
-    GND   ⇒   GND
-    VCC   ⇒   +5V
-    SDA   ⇒   pin D2  (GPIO  4) + pullup 4.7 kΩ
-    SCL   ⇒   pin D1  (GPIO  5) + pullup 4.7 kΩ
+  ## CONNEXIONS
+  GND   ⇒   GND
+  VCC   ⇒   +5V
+  SDA   ⇒   pin D2  (GPIO  4) + pullup 4.7 kΩ
+  SCL   ⇒   pin D1  (GPIO  5) + pullup 4.7 kΩ
 
 # ÉCRAN OLED 128×64 I²C (compatible SSD1306)
-    ## RÉFÉRENCE AliExpress
-    http://www.aliexpress.com/item/1Pcs-Yellow-blue-double-color-128X64-OLED-LCD-LED-Display-Module-For-Arduino-0-96/32305641669.html
+  ## RÉFÉRENCE AliExpress
+  http://www.aliexpress.com/item/1Pcs-Yellow-blue-double-color-128X64-OLED-LCD-LED-Display-Module-For-Arduino-0-96/32305641669.html
 
-    ## ADRESSE I²C
-    0x3C
+  ## ADRESSE I²C
+  0x3C
 
-    ## LIBRAIRIE Adafruit
-    https://github.com/adafruit/Adafruit_SSD1306.git
+  ## LIBRAIRIE Adafruit
+  https://github.com/adafruit/Adafruit_SSD1306.git
 
-    ## CONNEXIONS
-    GND   ⇒   GND
-    VDD   ⇒   +5V
-    SDA   ⇒   pin D2  (GPIO  4) + pullup 4.7 kΩ
-    SCK   ⇒   pin D1  (GPIO  5) + pullup 4.7 kΩ
+  ## CONNEXIONS
+  GND   ⇒   GND
+  VDD   ⇒   +5V
+  SDA   ⇒   pin D2  (GPIO  4) + pullup 4.7 kΩ
+  SCK   ⇒   pin D1  (GPIO  5) + pullup 4.7 kΩ
 
 # MICROCONTRÔLEUR
-    ESP8266 12E (Amica ou LoLin)
+  ESP8266 12E (Amica ou LoLin)
 
 # NOTES
-    La fonction Serial.print perturbe la RTC. Il faut mettre les Serial.print à la
-    fin des procédures.
+  La fonction Serial.print perturbe la RTC. Il faut mettre les Serial.print à la
+  fin des procédures.
+
+  Le fichier `WifiSettings.h` doit être créé manuellement à la racine du projet
+  et contenir les instructions suivantes :
+  const char* ssid     = "***";
+  const char* password = "***";
+
 
 juin 2016, ouilogique.com
 
@@ -161,11 +167,7 @@ void clignote()
 void initGPIO()
 {
   pinMode( bBtn1, INPUT_PULLUP );
-  // pinMode( bBtn2, INPUT_PULLUP );
-  // pinMode( bBtn1, INPUT );
-  // pinMode( bBtn2, INPUT );
-
-  // Initialisation et clignotement les LED
+  pinMode( bBtn2, INPUT_PULLUP );
   pinMode( LEDbleue, OUTPUT );
   pinMode( LEDrouge, OUTPUT );
   clignote();
@@ -173,7 +175,6 @@ void initGPIO()
 
 void initEcran()
 {
-  // Initialisation de l’écran
   display.begin( SSD1306_SWITCHCAPVCC, 0x3C );
   display.clearDisplay();
   display.setTextColor( INVERSE );
@@ -187,14 +188,44 @@ void initEcran()
   display.display();
 }
 
+void initWifi()
+{
+  #include "WifiSettings.h"
+  display.clearDisplay();
+  display.setTextSize( 2 );
+  display.setCursor( 5, 0 );
+  display.print( "CONNEXION" );
+  display.setCursor( 5, 19 );
+  display.print( "AU  RESEAU" );
+  display.setCursor( 5, 40 );
+  display.print( ssid );
+  display.display();
+  display.setCursor( 0, 0 );
+  WiFi.begin( ssid, password );
+  while( WiFi.status() != WL_CONNECTED )
+  {
+    delay( 500 );
+    display.print( "." );
+    display.display();
+  }
+  display.clearDisplay();
+  display.setCursor( 5, 0 );
+  display.print( "ADRESSE IP" );
+  display.setCursor( 0, 19 );
+  display.print( WiFi.localIP() );
+  display.display();
+  delay( 2000 );
+}
+
 void initHorloge()
 {
   // Initialisation de l’horloge
   RTC.begin();
 
-  // Demande l’heure à un serveur NTP et règle l’heure interne (pas
-  // celle du RTC) en conséquence.
-  udpInit( 2 );
+  // Demande l’heure à un serveur NTP et règle l’heure interne de l’ESP
+  // (pas celle du RTC) en conséquence.
+  const int timeZone = 2;
+  udpInit( timeZone );
   int *dateHeureInt;
   dateHeureInt = getESP8266intarrayTime();
 
@@ -203,7 +234,7 @@ void initHorloge()
   display.setTextColor( INVERSE );
   display.setTextSize( 2 );
 
-  // Réglage de l’horloge
+  // Réglage du RTC
   if( dateHeureInt[ 0 ] > 2015 )
   {
     RTC.adjust( DateTime(
@@ -467,6 +498,9 @@ void setup()
 
   // Initialisation de l’écran
   initEcran();
+
+  // Initialisation du WiFi
+  initWifi();
 
   // Initialisation de l’horloge
   initHorloge();

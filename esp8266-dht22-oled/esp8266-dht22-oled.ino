@@ -249,6 +249,9 @@ void getTempAndHum()
   // display.drawLine( px, 0, px, display.height()-1, WHITE );
   display.display();
 
+  // Envoie la valeur de millis() pour le debug
+  dweetClient.add( "ESP_millis" , String( millis() ) );
+
   // Mise à jour des dweets
   dweetClient.sendAll( THING_NAME );
 }

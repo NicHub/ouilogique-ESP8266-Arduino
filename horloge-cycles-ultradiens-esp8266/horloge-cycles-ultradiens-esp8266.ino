@@ -91,8 +91,8 @@ bool carillonGet = false;
 
 const int bBtn1  = 14;
 const int bBtn2  =  0;
-#define btn1Get ! digitalRead( bBtn1 )
-#define btn2Get ! digitalRead( bBtn2 )
+bool btn1Get = false;
+bool btn2Get = false;
 
 #include "RTClib.h"
 RTC_DS1307 RTC = RTC_DS1307();
@@ -168,6 +168,8 @@ void initGPIO()
 {
   pinMode( bBtn1, INPUT_PULLUP );
   pinMode( bBtn2, INPUT_PULLUP );
+  attachInterrupt( digitalPinToInterrupt( bBtn1 ), btn1Press, FALLING );
+  attachInterrupt( digitalPinToInterrupt( bBtn2 ), btn2Press, FALLING );
   pinMode( LEDbleue, OUTPUT );
   pinMode( LEDrouge, OUTPUT );
   clignote();
@@ -196,11 +198,11 @@ void initWifi()
   display.setCursor( 5, 0 );
   display.print( "CONNEXION" );
   display.setCursor( 5, 19 );
-  display.print( "AU  RESEAU" );
+  display.print( "AU RESEAU" );
   display.setCursor( 5, 40 );
   display.print( ssid );
   display.display();
-  display.setCursor( 0, 0 );
+  display.setCursor( 0, 50 );
   WiFi.begin( ssid, password );
   while( WiFi.status() != WL_CONNECTED )
   {
@@ -524,15 +526,17 @@ void loop()
       carillonGet = ! carillonGet;
       digitalWrite( LEDrouge, LEDallumee );
       horloge();
-      while( btn1Get ){ delay( 1 ); }
       digitalWrite( LEDrouge, LEDeteinte );
-      delay( 100 );
+      delay( 50 );
+      btn1Get = false;
     }
     // Si le bouton 2 est appuyé, on joue la mélodie,
     // même si le son est désactivé
     if( btn2Get )
     {
       MarioBros( carillonPin );
+      delay( 50 );
+      btn2Get = false;
     }
     now = RTC.now();
     T2 = now.secondstime();
@@ -545,4 +549,14 @@ void loop()
     now.year(), now.month(),  now.day(),
     now.hour(), now.minute(), now.second() );
   Serial.println( nowChar );
+}
+
+void btn1Press()
+{
+  btn1Get = true;
+}
+
+void btn2Press()
+{
+  btn2Get = true;
 }

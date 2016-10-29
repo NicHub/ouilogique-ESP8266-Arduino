@@ -9,8 +9,9 @@ AVEC AFFICHAGE SUR UN ÉCRAN OLED
   capteur DHT22 et les affiche sur un écran OLED 128×64 I²C à l’aide
   d’un ESP8266. Il envoie aussi les valeurs sur dweet.io à l’aide
   de la bibliothèque https://github.com/gamo256/dweet-esp et les valeurs
-  sont visibles (pas longtemps) à l’adresse
-  https://dweet.io/follow/THING-NAME
+  sont visibles à l’adresse https://dweet.io/follow/THING-NAME.
+  Les valeurs affichées sont stockées dans le navigateur et pas sur dweet.io,
+  donc elles sont perdues lorsque l’on ferme la fenêtre du navigateur.
   Plus d’infos à https://dweet.io/
 
 # PARAMÈTRES
@@ -77,6 +78,8 @@ dweet dweetClient;
 
 #define avecSerial true
 
+const int avecEcranOLEDPin = 12;
+bool avecEcranOLED = true;
 
 void initSerial()
 {
@@ -94,6 +97,8 @@ void initEcran()
   display.setTextSize( 2 );
   display.setCursor( 35, 0 );
   display.print( F( "DHT22" ) );
+  if( ! avecEcranOLED )
+    { display.clearDisplay(); }
   display.display();
 }
 
@@ -138,6 +143,12 @@ void initDHT()
 void initDweet()
 {
   dweetClient.wifiConnection( ssid, password );
+}
+
+void initGPIO()
+{
+  pinMode( avecEcranOLEDPin, INPUT_PULLUP );
+  attachInterrupt( digitalPinToInterrupt( avecEcranOLEDPin ), EcranOLEDPinONOFF, CHANGE );
 }
 
 
@@ -247,10 +258,15 @@ void getTempAndHum()
   // display.drawLine( px, 0, px, display.height()-1, WHITE );
   // px = 100;
   // display.drawLine( px, 0, px, display.height()-1, WHITE );
+  if( ! avecEcranOLED )
+    { display.clearDisplay(); }
   display.display();
 
-  // Envoie la valeur de millis() pour le debug
-  dweetClient.add( "ESP_millis" , String( millis() ) );
+  // Heartbeat pour le debug
+  // max = 2^32-1 = 4 294 967 295
+  // ⇒ 1362 ans à 0.1 Hz
+  static unsigned long heartBeat = 0;
+  dweetClient.add( "Heartbeat" , String( heartBeat++ ) );
 
   // Mise à jour des dweets
   dweetClient.sendAll( THING_NAME );
@@ -263,6 +279,7 @@ void setup()
   initEcran();
   initDHT();
   initDweet();
+  initGPIO();
 }
 
 
@@ -278,4 +295,16 @@ void loop()
       Serial.printf( "\ndT = %d ms\n", dT );
     #endif
   }
+}
+
+
+void EcranOLEDPinONOFF()
+{
+  static bool prevAvecEcranOLED;
+  prevAvecEcranOLED = avecEcranOLEDPin;
+  avecEcranOLED = digitalRead( avecEcranOLEDPin );
+  if( prevAvecEcranOLED != avecEcranOLED )
+  #if avecSerial
+    Serial.printf( "\navecEcranOLEDPin = %d\n", avecEcranOLEDPin );
+  #endif
 }

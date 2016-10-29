@@ -104,6 +104,9 @@ const int SSD1306_i2c = 0x3C;
 #define LEDallumee 0
 #define LEDeteinte 1
 
+const unsigned long periodeRafraichissement = F_CPU * 1; // Un rafraîchissement par seconde
+bool cestlheure = false;
+
 // Modifier ici l’heure d’attention maximum.
 // Par exemple, si 7 h 15 est une heure d’attention maximum :
 // heureAttentionMax = 7 h 15
@@ -491,8 +494,24 @@ void carillon()
   pinMode( carillonPin, INPUT_PULLUP );
 }
 
+void initTimer()
+{
+  noInterrupts();
+  timer0_isr_init();
+  timer0_attachInterrupt( timer0_ISR );
+  timer0_write( ESP.getCycleCount() + periodeRafraichissement );
+  interrupts();
+}
+
+void timer0_ISR( void )
+{
+  cestlheure = true;
+  timer0_write( ESP.getCycleCount() + periodeRafraichissement );
+}
+
 void setup()
 {
+  // Initialisation de la connexion série
   Serial.begin( 115200 );
 
   // Initialisation des GPIO
@@ -509,46 +528,46 @@ void setup()
 
   // Initialisation du carillon
   carillon();
+
+  // Initialisation du timer
+  initTimer();
 }
 
 void loop()
 {
-  horloge();
-
-  DateTime now = RTC.now();
-  long T1 = now.secondstime();
-  long T2 = T1;
-  while( T1 == T2 )
+  if( cestlheure )
   {
-    // Si le bouton 1 est appuyé le son est activé ou désactivé
-    if( btn1Get )
-    {
-      carillonGet = ! carillonGet;
-      digitalWrite( LEDrouge, LEDallumee );
-      horloge();
-      digitalWrite( LEDrouge, LEDeteinte );
-      delay( 50 );
-      btn1Get = false;
-    }
-    // Si le bouton 2 est appuyé, on joue la mélodie,
-    // même si le son est désactivé
-    if( btn2Get )
-    {
-      MarioBros( carillonPin );
-      delay( 50 );
-      btn2Get = false;
-    }
-    now = RTC.now();
-    T2 = now.secondstime();
+    horloge();
+    char nowChar[ 19 ];
+    DateTime now = RTC.now();
+    sprintf(
+      nowChar,
+      "Heure actuelle : %1d-%02d-%02d %02d:%02d:%02d",
+      now.year(), now.month(),  now.day(),
+      now.hour(), now.minute(), now.second() );
+    Serial.println( nowChar );
+    cestlheure = false;
   }
 
-  char nowChar[ 19 ];
-  sprintf(
-    nowChar,
-    "Heure actuelle : %1d-%02d-%02d %02d:%02d:%02d",
-    now.year(), now.month(),  now.day(),
-    now.hour(), now.minute(), now.second() );
-  Serial.println( nowChar );
+  // Si le bouton 1 est appuyé le son est activé ou désactivé
+  if( btn1Get )
+  {
+    carillonGet = ! carillonGet;
+    digitalWrite( LEDrouge, LEDallumee );
+    horloge();
+    digitalWrite( LEDrouge, LEDeteinte );
+    delay( 50 );
+    btn1Get = false;
+  }
+
+  // Si le bouton 2 est appuyé, on joue la mélodie,
+  // même si le son est désactivé
+  if( btn2Get )
+  {
+    MarioBros( carillonPin );
+    delay( 50 );
+    btn2Get = false;
+  }
 }
 
 void btn1Press()

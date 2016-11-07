@@ -229,7 +229,7 @@ void initHorloge()
 
   // Demande l’heure à un serveur NTP et règle l’heure interne de l’ESP
   // (pas celle du RTC) en conséquence.
-  const int timeZone = 2;
+  const int timeZone = 1;
   udpInit( timeZone );
   int *dateHeureInt;
   dateHeureInt = getESP8266intarrayTime();

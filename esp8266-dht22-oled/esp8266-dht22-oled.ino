@@ -76,9 +76,13 @@ uint32_t delayMS;
 #include "dweetESP8266.h"
 dweet dweetClient;
 
+const unsigned long periodeRafraichissement = F_CPU * 1; // Un rafraîchissement toute les 1 s.
+
+bool cestlheure = false;
+
 #define avecSerial true
 
-const int avecEcranOLEDPin = 12;
+const int avecEcranOLEDPin = 0;
 bool avecEcranOLED = true;
 
 void initSerial()
@@ -148,7 +152,24 @@ void initDweet()
 void initGPIO()
 {
   pinMode( avecEcranOLEDPin, INPUT_PULLUP );
-  attachInterrupt( digitalPinToInterrupt( avecEcranOLEDPin ), EcranOLEDPinONOFF, CHANGE );
+  attachInterrupt( digitalPinToInterrupt( avecEcranOLEDPin ), EcranOnOff, CHANGE );
+}
+
+
+void initTimer()
+{
+  noInterrupts();
+  timer0_isr_init();
+  timer0_attachInterrupt( timer0_ISR );
+  timer0_write( ESP.getCycleCount() + periodeRafraichissement );
+  interrupts();
+}
+
+
+void timer0_ISR( void )
+{
+  cestlheure = true;
+  timer0_write( ESP.getCycleCount() + periodeRafraichissement );
 }
 
 
@@ -280,31 +301,48 @@ void setup()
   initDHT();
   initDweet();
   initGPIO();
+  getTempAndHum();
+  initTimer();
 }
 
 
 void loop()
 {
-  static long T1 = millis();
-  long dT = millis() - T1;
-  if( dT > 10000 )
+  if( cestlheure )
   {
     getTempAndHum();
-    T1 = millis();
-    #if avecSerial
-      Serial.printf( "\ndT = %d ms\n", dT );
-    #endif
   }
 }
 
 
-void EcranOLEDPinONOFF()
+void EcranOnOff()
 {
-  static bool prevAvecEcranOLED;
-  prevAvecEcranOLED = avecEcranOLEDPin;
+  detachInterrupt( digitalPinToInterrupt( avecEcranOLEDPin ) );
+  // static bool prevAvecEcranOLED;
+  // prevAvecEcranOLED = avecEcranOLEDPin;
   avecEcranOLED = digitalRead( avecEcranOLEDPin );
-  if( prevAvecEcranOLED != avecEcranOLED )
+  // if( prevAvecEcranOLED != avecEcranOLED )
+  // {
+  //   #if avecSerial
+  //     Serial.printf( "\navecEcranOLEDPin = %d\n", avecEcranOLEDPin );
+  //   #endif
+  // }
+  if( avecEcranOLED )
+  {
+    display.clearDisplay();
+    display.setTextColor( INVERSE );
+    display.setTextSize( 2 );
+    display.setCursor( 35, 0 );
+    display.print( F( "DHT22" ) );
+  }
+  else
+  {
+    display.clearDisplay();
+  }
+  display.display();
   #if avecSerial
-    Serial.printf( "\navecEcranOLEDPin = %d\n", avecEcranOLEDPin );
+    Serial.printf( "\navecEcranOLED = %d\n", avecEcranOLED );
   #endif
+  delay( 50 );
+  attachInterrupt( digitalPinToInterrupt( avecEcranOLEDPin ), EcranOnOff, CHANGE );
 }

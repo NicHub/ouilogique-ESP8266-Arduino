@@ -12,7 +12,7 @@ Obtient l’heure d’un serveur NTP.
 #define OUILOGIQUE_NTP_H
 
 #include <Arduino.h>
-#include <ESP8266WiFi.h>
+// #include <ESP8266WiFi.h>
 
 /*
 Exemple : TimeNTP_ESP8266WiFi.ino
@@ -150,10 +150,11 @@ time_t _getNtpTime()
 }
 
 
-void udpInit( int newTimeZone )
+void udpInit( long gmtOffset )
 {
-  timeZone = newTimeZone;
-  secsSince1900Offset = timeZone * SECS_PER_HOUR - 2208988800UL;
+  // https://tools.ietf.org/html/rfc868
+  // the time  2,208,988,800 corresponds to 00:00  1 Jan 1970 GMT,
+  secsSince1900Offset = gmtOffset - 2208988800UL;
   Udp.begin( localPort );
   setSyncProvider( _getNtpTime );
 }

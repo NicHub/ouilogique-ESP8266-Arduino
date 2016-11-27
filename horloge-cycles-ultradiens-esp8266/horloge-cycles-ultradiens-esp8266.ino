@@ -58,19 +58,33 @@ https://github.com/NicHub/ouilogique-Arduino/blob/master/horloge-cycles-ultradie
 # MICROCONTRÔLEUR
   ESP8266 12E (Amica ou LoLin)
 
+# FUSEAU HORAIRE
+  Le fuseau horaire est déterminé en fonction de la position géographique sur timezonedb.com
+  Voir ouilogique_timezonedb.h
+
 # NOTES
   La fonction Serial.print perturbe la RTC. Il faut mettre les Serial.print à la
   fin des procédures.
 
   Le fichier `WifiSettings.h` doit être créé manuellement à la racine du projet
   et contenir les instructions suivantes :
-  const char* ssid     = "***";
-  const char* password = "***";
+  const char* ssid               = "***";
+  const char* password           = "***";
+  const char* timezonedbAPIkey   = "***";
+  const char* timezonedbLocation = "Europe/Zurich";
 
 
 juin 2016, ouilogique.com
 
 */
+#include "WifiSettings.h"
+
+#include <ESP8266WiFi.h>
+#include <ArduinoJson.h>
+
+
+WiFiClient client;
+#include "ouilogique_timezonedb.h"
 
 #include <Wire.h>
 #include <Adafruit_GFX.h>
@@ -195,7 +209,6 @@ void initEcran()
 
 void initWifi()
 {
-  #include "WifiSettings.h"
   display.clearDisplay();
   display.setTextSize( 2 );
   display.setCursor( 5, 0 );
@@ -222,15 +235,17 @@ void initWifi()
   delay( 2000 );
 }
 
-void initHorloge()
+void initHorloge( long gmtOffset )
 {
+  Serial.print( "gmtOffset :                 " );
+  Serial.println( gmtOffset );
+
   // Initialisation de l’horloge
   RTC.begin();
 
   // Demande l’heure à un serveur NTP et règle l’heure interne de l’ESP
   // (pas celle du RTC) en conséquence.
-  const int timeZone = 1;
-  udpInit( timeZone );
+  udpInit( gmtOffset );
   int *dateHeureInt;
   dateHeureInt = getESP8266intarrayTime();
 
@@ -262,7 +277,7 @@ void initHorloge()
 
   // Préparation de l’affichage de l’heure actuelle
   DateTime now = RTC.now();
-  char nowChar[ 19 ];
+  char nowChar[ 37 ];
 
   // Affiche l’heure à l’écran
   sprintf(
@@ -482,6 +497,11 @@ void prepareIconeCarillon()
     { prepareIconeCarillonOFF(); }
 }
 
+void initCarillon()
+{
+  carillon();
+}
+
 void carillon()
 {
   if( carillonGet )
@@ -509,27 +529,21 @@ void timer0_ISR( void )
   timer0_write( ESP.getCycleCount() + periodeRafraichissement );
 }
 
+void initSerial()
+{
+  Serial.begin( 115200 );
+}
+
 void setup()
 {
-  // Initialisation de la connexion série
-  Serial.begin( 115200 );
-
-  // Initialisation des GPIO
+  initSerial();
   initGPIO();
-
-  // Initialisation de l’écran
   initEcran();
-
-  // Initialisation du WiFi
   initWifi();
-
-  // Initialisation de l’horloge
-  initHorloge();
-
-  // Initialisation du carillon
-  carillon();
-
-  // Initialisation du timer
+  long gmtOffset;
+  getTimezone( &gmtOffset );
+  initHorloge( gmtOffset );
+  initCarillon();
   initTimer();
 }
 
@@ -538,7 +552,7 @@ void loop()
   if( cestlheure )
   {
     horloge();
-    char nowChar[ 19 ];
+    char nowChar[ 37 ];
     DateTime now = RTC.now();
     sprintf(
       nowChar,

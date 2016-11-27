@@ -73,8 +73,11 @@ DHT_Unified dht(DHTPIN, DHTTYPE);
 
 uint32_t delayMS;
 
+#define avecDweet true
+#if avecDweet
 #include "dweetESP8266.h"
 dweet dweetClient;
+#endif
 
 const unsigned long periodeRafraichissement = F_CPU * 1; // Un rafraîchissement toute les 1 s.
 
@@ -143,11 +146,12 @@ void initDHT()
   delayMS = sensor.min_delay / 1000;
 }
 
-
+#if avecDweet
 void initDweet()
 {
   dweetClient.wifiConnection( ssid, password );
 }
+#endif
 
 void initGPIO()
 {
@@ -223,7 +227,9 @@ void getTempAndHum()
     display.print( F( "." ) ); // Signe degré (°), simulé avec un point
 
     // Dweet
+    #if avecDweet
     dweetClient.add( "DHT22_Temperature" , String( event.temperature ) );
+    #endif
   }
 
   // Get humidity event and print its value.
@@ -259,7 +265,9 @@ void getTempAndHum()
     display.print( F( " \x25" ) ); // signe %
 
     // Dweet
+    #if avecDweet
     dweetClient.add( "DHT22_Relative_Humidity" , String( event.relative_humidity ) );
+    #endif
   }
 
   // Ajout séparateur de mesures Serial
@@ -287,10 +295,14 @@ void getTempAndHum()
   // max = 2^32-1 = 4 294 967 295
   // ⇒ 1362 ans à 0.1 Hz
   static unsigned long heartBeat = 0;
+  #if avecDweet
   dweetClient.add( "Heartbeat" , String( heartBeat++ ) );
+  #endif
 
   // Mise à jour des dweets
+  #if avecDweet
   dweetClient.sendAll( THING_NAME );
+  #endif
 }
 
 
@@ -299,7 +311,9 @@ void setup()
   initSerial();
   initEcran();
   initDHT();
+  #if avecDweet
   initDweet();
+  #endif
   initGPIO();
   getTempAndHum();
   initTimer();

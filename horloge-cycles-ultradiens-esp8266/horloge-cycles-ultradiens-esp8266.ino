@@ -108,7 +108,7 @@ const int bBtn2  =  0;
 bool btn1Get = false;
 bool btn2Get = false;
 
-#include "RTClib.h"
+#include <RTClib.h>
 RTC_DS1307 RTC = RTC_DS1307();
 
 const int SSD1306_i2c = 0x3C;
@@ -264,7 +264,7 @@ void initHorloge( long gmtOffset )
       dateHeureInt[ 3 ],
       dateHeureInt[ 4 ],
       dateHeureInt[ 5 ] ) );
-    display.setCursor( 25, 0 );
+    display.setCursor( 18, 0 );
     display.print( F( "NTP  OK" ) );
   }
   else
@@ -272,8 +272,12 @@ void initHorloge( long gmtOffset )
     display.setCursor( 5, 0 );
     display.print( F( "ECHEC  NTP" ) );
   }
+  display.setCursor( 6, 19 );
+  display.print( F( "GMT OFFSET" ) );
+  display.setCursor( 42, 40 );
+  display.print( gmtOffset );
   display.display();
-  delay( 1000 );
+  delay( 2000 );
 
   // Préparation de l’affichage de l’heure actuelle
   DateTime now = RTC.now();
@@ -284,6 +288,7 @@ void initHorloge( long gmtOffset )
     nowChar,
     "%1d-%02d-%02d",
     now.year(), now.month(),  now.day() );
+  display.clearDisplay();
   display.setCursor( 5, 19 );
   display.print( nowChar );
   display.display();

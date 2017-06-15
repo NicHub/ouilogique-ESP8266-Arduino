@@ -26,8 +26,17 @@ https://github.com/NicHub/ouilogique-ESP8266-Arduino/tree/master/simple-websocke
   ESP8266-01
 
 # NOTES
-  Le fichier `WifiSettings.h` doit être créé manuellement à la racine du projet
-  et contenir les instructions suivantes :
+  Le fichier wifisettings.json doit être édité pour contenir
+  les SSID + mots de passes des réseaux auxquels on veut se connecter
+  L’indice du réseau actif doit être enregistré dans “wifisettingsactiveindex.ini”.
+  Pour ne pas mettre ce fichier dans git :
+    git update-index --assume-unchanged wifisettings.json
+  Pour le mettre à nouveau :
+    git update-index --no-assume-unchanged wifisettings.json
+
+  Dans la version précédente du programme (avant 15 juin 2017),
+  il fallait créer manuellement le fichier `WifiSettings.h`
+  à la racine du projet et indiquer les informations suivantes :
   const char* ssid     = "***";
   const char* password = "***";
 
@@ -42,21 +51,10 @@ https://github.com/NicHub/ouilogique-ESP8266-Arduino/tree/master/simple-websocke
 
 # UPLOAD DES FICHIERS DU SERVEUR WEB DE L’ESP8266
 
-## Avec des requêtes POST
-  Il faut que l’ESP soit flashé avec `simple-websocket.ino` au préalable pour que ça fonctionne.
-  Testé sur Mac OSX et Win 7 avec Cygwin.
-
-    cd data
-    ip=$(ping -c 1 esp8266.local | gawk -F'[()]' '/PING/{print $2}'); echo "http://$ip/"
-    curl                                             \
-        -F "file=@img1.jpg"        http://$ip/upload \
-        -F "file=@img2.jpg"        http://$ip/upload \
-        -F "file=@index.html"      http://$ip/upload \
-        -F "file=@logo.png"        http://$ip/upload \
-        -F "file=@style.css"       http://$ip/upload \
-        -F "file=@websocket.js"    http://$ip/upload
-
 ## Avec esp8266fs
+  Le premier upload doit être réalisé avec esp8266fs.
+  Ensuite, on peut utiliser les requêtes POST (voir ci-dessous).
+
   Cette façon de procéder est très lente !
 
   La procédure d’installation et d’utilisation est ici :
@@ -69,6 +67,19 @@ https://github.com/NicHub/ouilogique-ESP8266-Arduino/tree/master/simple-websocke
   plus petite ou égale à la quantité de flash disponible. Cette valeur peut être déterminée
   avec le programme get-esp8266-info.ino :
   https://github.com/NicHub/ouilogique-ESP8266-Arduino/blob/master/get-esp8266-info/get-esp8266-info.ino
+
+## Avec des requêtes POST
+  Il faut que l’ESP soit flashé avec `simple-websocket.ino` au préalable pour que ça fonctionne.
+  Testé sur Mac OSX et Win 7 avec Cygwin.
+
+    cd data
+    ip=$(ping -c 1 esp8266.local | gawk -F'[()]' '/PING/{print $2}'); echo "http://$ip/"
+    curl -F "file=@img1.jpg"        http://$ip/upload \
+         -F "file=@img2.jpg"        http://$ip/upload \
+         -F "file=@index.html"      http://$ip/upload \
+         -F "file=@logo.png"        http://$ip/upload \
+         -F "file=@style.css"       http://$ip/upload \
+         -F "file=@websocket.js"    http://$ip/upload
 
 
 juin 2016, ouilogique.com
@@ -325,9 +336,12 @@ void printCurrentTime()
 void finSetup()
 {
   Serial.print( "# FIN DE L'INITIALISATION\n" );
+  Serial.printf( "\tNom        : %s.local\n", mDNSName );
   Serial.print( "\tAdresse IP : " );
   Serial.println( WiFi.localIP() );
-  Serial.printf( "\tNom        : %s.local \n\n##############\n\n", mDNSName );
+  Serial.print( "\tURL        : http://" );
+  Serial.print( WiFi.localIP() );
+  Serial.print( "/\n\n##############\n\n" );
 }
 
 void setup()

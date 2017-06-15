@@ -1,0 +1,42 @@
+[
+    {
+        "SSID": "aaa",
+        "PASSWORD": "000"
+    },
+    {
+        "SSID": "bbb",
+        "PASSWORD": "111"
+    },
+    {
+        "SSID": "ccc",
+        "PASSWORD": "222"
+    },
+    {
+        "SSID": "ddd",
+        "PASSWORD": "333"
+    },
+    {
+        "SSID": "eee",
+        "PASSWORD": "444"
+    },
+    {
+        "SSID": "fff",
+        "PASSWORD": "555"
+    },
+    {
+        "SSID": "ggg",
+        "PASSWORD": "666"
+    },
+    {
+        "SSID": "hhh",
+        "PASSWORD": "777"
+    },
+    {
+        "SSID": "iii",
+        "PASSWORD": "888"
+    },
+    {
+        "SSID": "jjj",
+        "PASSWORD": "999"
+    }
+]

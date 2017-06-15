@@ -18,6 +18,9 @@
 #include <ArduinoOTA.h>
 #include <FS.h>
 
+String activeSSID;
+String activePASSWORD;
+
 
 ESP8266WiFiMulti WiFiMulti;
 ESP8266WebServer webServer = ESP8266WebServer( 80 );
@@ -30,6 +33,7 @@ static const uint8_t LED_BLUE = 2; // GPIO 2;
 #elif ESP_MODULE_TYPE == 'ESP-12E'
 static const uint8_t LED_RED  = D0; // GPIO 16;
 static const uint8_t LED_BLUE = D4; // GPIO 2;
+static const uint8_t RESET_PIN = 5; // GPIO 5;
 #endif
 #define LED_SET   LOW
 #define LED_CLEAR HIGH
@@ -42,22 +46,26 @@ void webSocketEvent( uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
 
 
 
-
 void onFaitUnePause( unsigned long attente )
 {
   unsigned long Tf = millis() + attente;
-  Serial.flush();
-  bool status = false;
-  Serial.printf( "On fait une pause de %d ms ", attente );
+  Serial.printf( "# ON FAIT UNE PAUSE DE %d ms\n\t", attente );
   while( millis() < Tf )
   {
-    digitalWrite( LED_BLUE,  status );
-    digitalWrite( LED_RED, ! status );
-    status = ! status;
-    if( status ) { Serial.print( "." ); }
-    delay( 60 );
+    static byte count = 0;
+    if( ++count > 100 )
+    {
+      Serial.print( "\n\t" );
+      count = 1;
+    }
+    Serial.print( "." );
+    Serial.flush();
+    digitalWrite( LED_BLUE,  LED_SET );
+    delay( 1 );
+    digitalWrite( LED_BLUE,  LED_CLEAR );
+    delay( 99 );
   }
-  Serial.print( " OK\n" );
+  Serial.print( "\n\n" );
   Serial.flush();
 }
 
@@ -111,32 +119,36 @@ String formatBytes(size_t bytes){
   }
 }
 
-String getContentType(String filename){
-  if(webServer.hasArg("download")) return "application/octet-stream";
-  else if(filename.endsWith(".htm")) return "text/html";
-  else if(filename.endsWith(".html")) return "text/html";
-  else if(filename.endsWith(".css")) return "text/css";
-  else if(filename.endsWith(".js")) return "application/javascript";
-  else if(filename.endsWith(".png")) return "image/png";
-  else if(filename.endsWith(".gif")) return "image/gif";
-  else if(filename.endsWith(".jpg")) return "image/jpeg";
-  else if(filename.endsWith(".ico")) return "image/x-icon";
-  else if(filename.endsWith(".xml")) return "text/xml";
-  else if(filename.endsWith(".pdf")) return "application/x-pdf";
-  else if(filename.endsWith(".zip")) return "application/x-zip";
-  else if(filename.endsWith(".gz")) return "application/x-gzip";
-  return "text/plain";
+String getContentType( String filename )
+{
+  if( webServer.hasArg( "download" ) )    return "application/octet-stream";
+  else if( filename.endsWith( ".htm"  ) ) return "text/html";
+  else if( filename.endsWith( ".html" ) ) return "text/html";
+  else if( filename.endsWith( ".css"  ) ) return "text/css";
+  else if( filename.endsWith( ".js"   ) ) return "application/javascript";
+  else if( filename.endsWith( ".png"  ) ) return "image/png";
+  else if( filename.endsWith( ".gif"  ) ) return "image/gif";
+  else if( filename.endsWith( ".jpg"  ) ) return "image/jpeg";
+  else if( filename.endsWith( ".ico"  ) ) return "image/x-icon";
+  else if( filename.endsWith( ".xml"  ) ) return "text/xml";
+  else if( filename.endsWith( ".pdf"  ) ) return "application/x-pdf";
+  else if( filename.endsWith( ".zip"  ) ) return "application/x-zip";
+  else if( filename.endsWith( ".gz"   ) ) return "application/x-gzip";
+  else if( filename.endsWith( ".ini"  ) ) return "text/plain";
+  else return "text/plain";
 }
 
-bool handleFileRead(String path){
-  Serial.println("handleFileRead: " + path);
-  if(path.endsWith("/")) path += "index.htm";
-  String contentType = getContentType(path);
+bool handleFileRead(String path)
+{
+  Serial.println( "handleFileRead: " + path );
+  if( path.endsWith( "/" ) ) path += "index.html";
+  String contentType = getContentType( path );
   String pathWithGz = path + ".gz";
-  if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)){
-    if(SPIFFS.exists(pathWithGz))
+  if( SPIFFS.exists( pathWithGz ) || SPIFFS.exists( path ) )
+  {
+    if( SPIFFS.exists( pathWithGz ) )
       path += ".gz";
-    File file = SPIFFS.open(path, "r");
+    File file = SPIFFS.open( path, "r" );
     size_t sent = webServer.streamFile(file, contentType);
     file.close();
     return true;
@@ -256,24 +268,24 @@ void handleFileList() {
 // Envoie l’état des GPIO au format JSON
 void WSsendGPIOStates( uint8_t num )
 {
-  char jsonMsg[ 120 ];
+  char jsonMsg[ 147 ];
   sprintf( jsonMsg,
-    "{\"GPIO\":{\"0\":\"%d\",\"1\":\"%d\",\"2\":\"%d\",\"3\":\"%d\",\"4\":\"%d\",\"5\":\"%d\",\"9\":\"%d\",\"10\":\"%d\",\"12\":\"%d\",\"13\":\"%d\",\"14\":\"%d\",\"15\":\"%d\",\"16\":\"%d\"}}",
-    !digitalRead(  0 ),
-    !digitalRead(  1 ),
-    !digitalRead(  2 ),
-    !digitalRead(  3 ),
-    !digitalRead(  4 ),
-    !digitalRead(  5 ),
+    "{\"GPIO\":{\"GPIO0\":%d,\"GPIO1\":%d,\"GPIO2\":%d,\"GPIO3\":%d,\"GPIO4\":%d,\"GPIO5\":%d,\"GPIO9\":%d,\"GPIO10\":%d,\"GPIO12\":%d,\"GPIO13\":%d,\"GPIO14\":%d,\"GPIO15\":%d,\"GPIO16\":%d}}",
+    digitalRead(  0 ),
+    digitalRead(  1 ),
+    digitalRead(  2 ),
+    digitalRead(  3 ),
+    digitalRead(  4 ),
+    digitalRead(  5 ),
     // Pas de GPIO 6, 7, 8
-    !digitalRead(  9 ),
-    !digitalRead( 10 ),
+    digitalRead(  9 ),
+    digitalRead( 10 ),
     // Pas de GPIO 11
-    !digitalRead( 12 ),
-    !digitalRead( 13 ),
-    !digitalRead( 14 ),
-    !digitalRead( 15 ),
-    !digitalRead( 16 )
+    digitalRead( 12 ),
+    digitalRead( 13 ),
+    digitalRead( 14 ),
+    digitalRead( 15 ),
+    digitalRead( 16 )
   );
 
   Serial.printf( "%s\n", jsonMsg );
@@ -283,29 +295,32 @@ void WSsendGPIOStates( uint8_t num )
 
 void printESPInfo()
 {
-  //ESP.getVcc() ⇒ may be used to measure supply voltage. ESP needs to reconfigure the ADC at startup in order for this feature to be available. ⇒ https://github.com/esp8266/Arduino/blob/master/doc/libraries.md#user-content-esp-specific-apis
-  Serial.printf( "ESP.getFreeHeap()              : %d\n",   ESP.getFreeHeap() );   //  returns the free heap size.
-  Serial.printf( "ESP.getChipId()                : 0x%X\n", ESP.getChipId() );   //  returns the ESP8266 chip ID as a 32-bit integer.
-  Serial.printf( "ESP.getSdkVersion()            : %d\n",   ESP.getSdkVersion() );
-  Serial.printf( "ESP.getBootVersion()           : %d\n",   ESP.getBootVersion() );
-  Serial.printf( "ESP.getBootMode()              : %d\n",   ESP.getBootMode() );
-  Serial.printf( "ESP.getCpuFreqMHz()            : %d\n",   ESP.getCpuFreqMHz() );
-  Serial.printf( "ESP.getFlashChipId()           : 0x%X\n", ESP.getFlashChipId() );
-  Serial.printf( "ESP.getFlashChipRealSize()     : %d\n",   ESP.getFlashChipRealSize() );
-  Serial.printf( "ESP.getFlashChipSize()         : %d\n",   ESP.getFlashChipSize() );  //returns the flash chip size, in bytes, as seen by the SDK (may be less than actual size).
-  Serial.printf( "ESP.getFlashChipSpeed()        : %d\n",   ESP.getFlashChipSpeed() ); // returns the flash chip frequency, in Hz.
-  Serial.printf( "ESP.getFlashChipMode()         : %d\n",   ESP.getFlashChipMode() );
-  Serial.printf( "ESP.getFlashChipSizeByChipId() : 0x%X\n", ESP.getFlashChipSizeByChipId() );
-  Serial.printf( "ESP.getSketchSize()            : %d\n",   ESP.getSketchSize() );
-  Serial.printf( "ESP.getFreeSketchSpace()       : %d\n",   ESP.getFreeSketchSpace() );
-  Serial.printf( "ESP.getCycleCount()            : %d\n",   ESP.getCycleCount() ); // returns the cpu instruction cycle count since start as an unsigned 32-bit. This is useful for accurate timing of very short actions like bit banging.
+  Serial.print( "# ESP INFO\n" );
 
+  //ESP.getVcc() ⇒ may be used to measure supply voltage. ESP needs to reconfigure the ADC at startup in order for this feature to be available. ⇒ https://github.com/esp8266/Arduino/blob/master/doc/libraries.md#user-content-esp-specific-apis
+  Serial.printf( "\tESP.getFreeHeap()              : %d\n",   ESP.getFreeHeap() );   //  returns the free heap size.
+  Serial.printf( "\tESP.getChipId()                : 0x%X\n", ESP.getChipId() );   //  returns the ESP8266 chip ID as a 32-bit integer.
+  Serial.printf( "\tESP.getSdkVersion()            : %d\n",   ESP.getSdkVersion() );
+  Serial.printf( "\tESP.getBootVersion()           : %d\n",   ESP.getBootVersion() );
+  Serial.printf( "\tESP.getBootMode()              : %d\n",   ESP.getBootMode() );
+  Serial.printf( "\tESP.getCpuFreqMHz()            : %d\n",   ESP.getCpuFreqMHz() );
+  Serial.printf( "\tESP.getFlashChipId()           : 0x%X\n", ESP.getFlashChipId() );
+  Serial.printf( "\tESP.getFlashChipRealSize()     : %d\n",   ESP.getFlashChipRealSize() );
+  Serial.printf( "\tESP.getFlashChipSize()         : %d\n",   ESP.getFlashChipSize() );  //returns the flash chip size, in bytes, as seen by the SDK (may be less than actual size).
+  Serial.printf( "\tESP.getFlashChipSpeed()        : %d\n",   ESP.getFlashChipSpeed() ); // returns the flash chip frequency, in Hz.
+  Serial.printf( "\tESP.getFlashChipMode()         : %d\n",   ESP.getFlashChipMode() );
+  Serial.printf( "\tESP.getFlashChipSizeByChipId() : 0x%X\n", ESP.getFlashChipSizeByChipId() );
+  Serial.printf( "\tESP.getSketchSize()            : %d\n",   ESP.getSketchSize() );
+  Serial.printf( "\tESP.getFreeSketchSpace()       : %d\n",   ESP.getFreeSketchSpace() );
+  Serial.printf( "\tESP.getCycleCount()            : %d\n",   ESP.getCycleCount() ); // returns the cpu instruction cycle count since start as an unsigned 32-bit. This is useful for accurate timing of very short actions like bit banging.
+
+  Serial.print( "\n\n" );
   Serial.flush(); // Pour attendre que tous les caractères soient envoyés
 }
 
 void initSystemeFichiers()
 {
-  Serial.print( "Initialisation du systeme de fichiers\n" );
+  Serial.print( "# INITIALISATION DU SYSTEME DE FICHIERS\n" );
   SPIFFS.begin();
   {
     Dir dir = SPIFFS.openDir( "/" );
@@ -314,56 +329,145 @@ void initSystemeFichiers()
       String fileName = dir.fileName();
       size_t fileSize = dir.fileSize();
       Serial.printf(
-        "FS File: %s, size: %s\n",
+        "\t%s, %s\n",
         fileName.c_str(), formatBytes(fileSize).c_str()
       );
     }
-    Serial.print( "Fin de l'initialisation du systeme de fichiers\n" );
+    Serial.print( "\n" );
   }
+}
+
+void inverseBubbleSortIndexes( int inputArray[], int indexes[], int arraySize )
+{
+  for( int i=0; i<arraySize; i++ )
+    indexes[ i ] = i;
+
+  for( int i=0; i<arraySize-1; i++ )
+  {
+    for( int j=0; j<arraySize-1-i; j++ )
+    {
+      if( inputArray[ j ] < inputArray[ j+1 ] )
+      {
+        int temp = inputArray[ j+1 ];
+        inputArray[ j+1 ] = inputArray[ j ];
+        inputArray[ j ] = temp;
+        int tempI = indexes[ j+1 ];
+        indexes[ j+1 ] = indexes[ j ];
+        indexes[ j ] = tempI;
+      }
+    }
+  }
+}
+
+void scanNetwork()
+{
+  Serial.println( "# SCAN DU RESEAU" );
+  WiFi.disconnect();
+
+  // WiFi.scanNetworks will return the number of networks found
+  int nbNetworkFound = WiFi.scanNetworks();
+  if( nbNetworkFound == 0 )
+    Serial.println( "\tno networks found" );
+  else
+  {
+    Serial.print( "\t## " );
+    Serial.print( nbNetworkFound );
+    Serial.println( " NETWORKS FOUND" );
+
+    // Trie les SSID par ordre croissant de force de signal
+    int RSSIarray[ nbNetworkFound ];
+    int indexes[ nbNetworkFound ];
+    for( int i=0; i<nbNetworkFound; i++ )
+      RSSIarray[ i ] = WiFi.RSSI( i );
+    inverseBubbleSortIndexes( RSSIarray, indexes, nbNetworkFound );
+
+    for( int i=0; i<nbNetworkFound; i++ )
+    {
+      // Print SSID and RSSI for each network found
+      Serial.print( "\t" );
+      if( i<9 ) Serial.print( " " );
+      Serial.print( i + 1 );
+      Serial.print( ": (" );
+      Serial.print( WiFi.RSSI( indexes[ i ] ) );
+      Serial.print( " dB) " );
+      Serial.print( WiFi.SSID( indexes[ i ] ) );
+      Serial.println( ( WiFi.encryptionType( indexes[ i ] ) == ENC_TYPE_NONE ) ? " (unprotected)" : "" );
+      Serial.flush();
+    }
+  }
+  Serial.println( "" );
 }
 
 void initServicesWeb()
 {
   // Initialisation de la connexion WiFi
-  Serial.print( "Initialisation de la connexion WiFi .." );
+  Serial.println( "# INITIALISATION DE LA CONNEXION WIFI" );
+
+  byte nbChar;
+  nbChar = activeSSID.length();
+  char ssid[ nbChar + 1 ];
+  ssid[ nbChar + 1 ] = '\0';
+  activeSSID.toCharArray( ssid, nbChar+1 );
+  nbChar = activePASSWORD.length();
+  char password[ nbChar + 1 ];
+  password[ nbChar + 1 ] = '\0';
+  activePASSWORD.toCharArray( password, nbChar+1 );
+
+  Serial.println( "\tactiveSSID initWeb     : " + String( ssid ) );
+  Serial.println( "\tactivePASSWORD initWeb : " + String( password ) );
+
+  WiFi.persistent( false );
+  WiFi.mode( WIFI_STA );
   WiFiMulti.addAP( ssid, password );
+
+  Serial.print( "\t" );
   while( WiFiMulti.run() != WL_CONNECTED )
   {
+    static byte count = 0;
+    if( ++count > 100 )
+    {
+      Serial.print( "\n\t" );
+      count = 1;
+    }
     Serial.print( "." );
     Serial.flush();
-    delay( 100 );
+    digitalWrite( LED_RED,  LED_SET );
+    delay( 1 );
+    digitalWrite( LED_RED,  LED_CLEAR );
+    delay( 99 );
   }
-  Serial.print( " OK\n" );
+  Serial.flush();
 
   // Démarrage du serveur WebSocket
-  Serial.print( "Demarrage du serveur WebSocket\n" );
+  Serial.print( "\n# DEMARRAGE DU SERVEUR WEBSOCKET\n" );
   webSocket.begin();
   webSocket.onEvent( webSocketEvent );
 
   // Démarrage du mDNS (multicast Domain Name System)
-  Serial.printf( "Demarrage du mDNS avec le nom '%s.local' .. ", mDNSName );
+  Serial.printf( "\tDemarrage du mDNS avec le nom '%s.local' .. ", mDNSName );
   if( MDNS.begin( mDNSName ) )
     { Serial.print( "OK\n" ); }
   else
     { Serial.print( "PAS OK\n" ); }
+  Serial.flush();
 
   // Chargement du fichier “index.html”
-  Serial.print( "Chargement du fichier 'index.html'\n" );
+  Serial.print( "\tChargement du fichier 'index.html'\n" );
   webServer.on( "/", []()
   {
     if( ! handleFileRead( "/index.html" ) ) webServer.send( 404, "text/plain", "FileNotFound" );
   });
 
   // Gestion de l’URL “/list”
-  Serial.print( "Gestion de l'URL '/list'\n" );
+  Serial.print( "\tGestion de l'URL '/list'\n" );
   webServer.on( "/list", HTTP_GET, handleFileList );
 
-  // Gestion de l’URL “/upload
-  Serial.print( "Gestion de l'URL '/upload'\n" );
+  // Gestion de l’URL “/upload”
+  Serial.print( "\tGestion de l'URL '/upload'\n" );
   webServer.on( "/upload", HTTP_POST, [](){ webServer.send( 200, "text/plain", "" ); }, handleFileUpload );
 
   // Pour toutes les autres URL.
-  Serial.print( "Gestion des autres URL\n" );
+  Serial.print( "\tGestion des autres URL\n" );
   webServer.onNotFound([]()
   {
     if( !handleFileRead( webServer.uri() ) )
@@ -371,17 +475,19 @@ void initServicesWeb()
   });
 
   // Démarrage du serveur web
-  Serial.print( "Demarrage du serveur web\n" );
+  Serial.print( "\tDemarrage du serveur web\n" );
   webServer.begin();
 
   // Ajout des services HTTP et WebSocket au mDNS
-  Serial.print( "Ajout des services HTTP et WebSocket au mDNS\n" );
+  Serial.print( "\tAjout des services HTTP et WebSocket au mDNS\n" );
   MDNS.addService( "http", "tcp", 80 );
   MDNS.addService( "ws",   "tcp", 81 );
 
   // Setup terminé
-  Serial.print( "Setup OK\nAdresse IP : " );
+  Serial.print( "\tSetup OK\n\tAdresse IP : " );
   Serial.println( WiFi.localIP() );
+  Serial.print( "\n" );
+  Serial.flush();
 }
 
 
@@ -442,7 +548,7 @@ char *getNTPTime() {
         month(),
         year()
       );
-      Serial.printf( "L'HEURE ET LA DATE SONT : %s\n", jsonMsg );
+      Serial.printf( "\tHeure et date        : %s\n", jsonMsg );
     }
   }
   return jsonMsg;
@@ -482,21 +588,22 @@ void sendNTPpacket(IPAddress &address)
 
 time_t _getNtpTime()
 {
+  Serial.println( "# LECTURE DE L’HEURE COURANTE SUR UN SERVEUR NTP" );
   //get a random server from the pool
   WiFi.hostByName(ntpServerName, timeServerIP);
-  Serial.print( "ntpServerName = " );
+  Serial.print( "\tntpServerName        : " );
   Serial.println( ntpServerName );
-  Serial.print( "timeServerIP = " );
+  Serial.print( "\ttimeServerIP         : " );
   Serial.println( timeServerIP );
 
   while (Udp.parsePacket() > 0) ; // discard any previously received packets
-  Serial.println("Transmit NTP Request");
+  Serial.println("\tTransmit NTP Request");
   sendNTPpacket(timeServerIP);
   uint32_t beginWait = millis();
   while (millis() - beginWait < 1500) {
     int size = Udp.parsePacket();
     if (size >= NTP_PACKET_SIZE) {
-      Serial.println("Receive NTP Response");
+      Serial.println("\tReceive NTP Response");
       Udp.read(packetBuffer, NTP_PACKET_SIZE);  // read packet into the buffer
       unsigned long secsSince1900;
       // convert four bytes starting at location 40 to a long integer
@@ -507,7 +614,7 @@ time_t _getNtpTime()
       return secsSince1900 - 2208988800UL + timeZone * SECS_PER_HOUR;
     }
   }
-  Serial.println("No NTP Response :-(");
+  Serial.println("\tNo NTP Response :-(");
   return 0; // return 0 if unable to get the time
 }
 
@@ -515,6 +622,69 @@ time_t _getNtpTime()
 void udpInit() {
   Udp.begin(localPort);
   setSyncProvider(_getNtpTime);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+*/
+
+bool parseJSONwifiSettingsFromFile()
+{
+
+  // Lit l’index des paramètres de la connexion Wifi active
+  String path1 = String( "/wifisettingsactiveindex.ini" );
+  Serial.println( "# LECTURE DES INFORMATIONS DE CONNEXION" );
+  Serial.println( "\tfichier           : " + path1 );
+
+  File cFile1 = SPIFFS.open( path1, "r" );
+  String wifiSettingsActiveIndex = cFile1.readStringUntil( '\n' );
+  cFile1.close();
+
+  byte activeIndex = wifiSettingsActiveIndex.toInt();
+  Serial.println( "\tindice actif      : " + String( activeIndex ) );
+
+  // Lit la liste des paramètre de connexion Wifi
+  String path = String( "/wifisettings.json" );
+  Serial.println( "\tfichier           : " + path );
+
+  File cFile = SPIFFS.open( path, "r" );
+  String jsonWifiSettings = cFile.readStringUntil( ']' ) + "]";
+  cFile.close();
+
+  unsigned long nbChar = jsonWifiSettings.length();
+  Serial.println( "\tnb caracteres lus : " + String( nbChar ) );
+
+  // Voir https://bblanchon.github.io/ArduinoJson/
+  const size_t bufferSize = JSON_ARRAY_SIZE(10) + 10*JSON_OBJECT_SIZE(2) + 290;
+  DynamicJsonBuffer jsonBuffer( bufferSize );
+  char json[ nbChar+1 ];
+  jsonWifiSettings.toCharArray( json, nbChar+1 );
+  JsonArray& root = jsonBuffer.parseArray(json);
+
+  String SSIDs[ 10 ]     = { root[ 0 ][ "SSID" ], root[ 1 ][ "SSID" ], root[ 2 ][ "SSID" ], root[ 3 ][ "SSID" ], root[ 4 ][ "SSID" ], root[ 5 ][ "SSID" ], root[ 6 ][ "SSID" ], root[ 7 ][ "SSID" ], root[ 8 ][ "SSID" ], root[ 9 ][ "SSID" ] };
+  String PASSWORDs[ 10 ] = { root[ 0 ][ "PASSWORD" ], root[ 1 ][ "PASSWORD" ], root[ 2 ][ "PASSWORD" ], root[ 3 ][ "PASSWORD" ], root[ 4 ][ "PASSWORD" ], root[ 5 ][ "PASSWORD" ], root[ 6 ][ "PASSWORD" ], root[ 7 ][ "PASSWORD" ], root[ 8 ][ "PASSWORD" ], root[ 9 ][ "PASSWORD" ] };
+
+  Serial.println( "\tSSID final        : " + String( SSIDs[ activeIndex ] ) );
+  nbChar = SSIDs[ activeIndex ].length();
+  Serial.println( "\tnbChar SSID final : " + String( nbChar ) + "\n" );
+
+  activeSSID     = SSIDs[ activeIndex ];
+  activePASSWORD = PASSWORDs[ activeIndex ];
+
+  return true;
 }
 
 #endif //  WS_FUNCTIONS_H

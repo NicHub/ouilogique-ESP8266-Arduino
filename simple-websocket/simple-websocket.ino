@@ -16,6 +16,11 @@ https://github.com/NicHub/ouilogique-ESP8266-Arduino/tree/master/simple-websocke
   Disponible dans le gestionnaire de bibliothèques de l’IDE Arduino
   (rechercher “Timekeeping functionality for Arduino”)
 
+  ArduinoJson 5.9.0 de Benoît Blanchon
+  https://bblanchon.github.io/ArduinoJson/
+  Disponible dans le gestionnaire de bibliothèques de l’IDE Arduino
+  (rechercher “ArduinoJson”)
+
 # MODULES TESTÉS
   ESP8266-12E Amica
   ESP8266-01
@@ -42,8 +47,7 @@ https://github.com/NicHub/ouilogique-ESP8266-Arduino/tree/master/simple-websocke
   Testé sur Mac OSX et Win 7 avec Cygwin.
 
     cd data
-    ip=$(ping -c 1 esp8266.local | gawk -F'[()]' '/PING/{print $2}')
-    echo $ip
+    ip=$(ping -c 1 esp8266.local | gawk -F'[()]' '/PING/{print $2}'); echo "http://$ip/"
     curl                                             \
         -F "file=@img1.jpg"        http://$ip/upload \
         -F "file=@img2.jpg"        http://$ip/upload \
@@ -72,6 +76,7 @@ juin 2016, ouilogique.com
 */
 
 #include "WifiSettings.h"
+#include <ArduinoJson.h>
 #include "ws_functions.h"
 
 const char* mDNSName = "esp8266";
@@ -137,42 +142,221 @@ extern void webSocketEvent( uint8_t num, WStype_t type, uint8_t * payload, size_
       delay( 100 );
       WSsendGPIOStates( num );
     }
+    if( payload[0] == '[' )
+    {
+      wifiSettingsFileWrite( num, type, payload, length );
+    }
+    if( payload[0] == '-' )
+    {
+      payload[0] = ' ';
+      wifiSettingsActiveIndexFileWrite( num, type, payload, length );
+    }
+    if( payload[0] == '*' )
+    {
+      wifiSettingsFileRead( num );
+    }
+    if( payload[0] == '%' )
+    {
+      Serial.println( "RESTART !!!\n\n\n" );
+      delay( 10 );
+      digitalWrite( RESET_PIN, LOW );
+    }
+    if( payload[0] == 'W' )
+    {
+      IPAddress espIP = WiFi.localIP();
+      static char jsonMsg[ 100 ] = "-";
+      sprintf( jsonMsg, "{\"IP\":\"%d.%d.%d.%d\",\"mDNSName\":\"%s\"}", espIP[0], espIP[1], espIP[2], espIP[3], mDNSName );
+      Serial.println( jsonMsg );
+      webSocket.sendTXT( num, jsonMsg );
+    }
+    if( payload[0] == '{' )
+    {
+      // String JSON pour tests
+      // {"GPIO":{"GPIO2":1,"GPIO16":0}, "SERIAL":"COUCOU c'est moi"}
+      DynamicJsonBuffer jsonBuffer( length );
+      JsonObject& root = jsonBuffer.parseObject( payload );
+      if( ! root.success() )
+      {
+        Serial.println( "JSON parsing failed!" );
+        return;
+      }
+      Serial.println( "JSON parsing OK!" );
+      root.printTo( Serial );
+
+      // À simplifier : lire https://bblanchon.github.io/ArduinoJson/api/jsonobject/containskey/
+      for( JsonObject::iterator it=root.begin(); it!=root.end(); ++it )
+      {
+          const char* key   = it->key;
+          JsonVariant value = it->value;
+          Serial.print( "key = " );
+          Serial.println( key );
+
+          if( value.is<JsonObject>() ) {
+            if( strcmp( key, "GPIO"   ) == 0 ) receivedGPIO( value );
+          }
+          if( strcmp( key, "SERIAL" ) == 0 ) receivedSERIAL( value );
+      }
+    }
     break;
   }
+}
+
+void receivedGPIO( JsonObject& GPIOobject ) {
+  for( JsonObject::iterator it=GPIOobject.begin(); it!=GPIOobject.end(); ++it )
+  {
+    const char* key = it->key;
+    JsonVariant value = it->value;
+    Serial.print( "GPIOobject key = " );
+    int NB = String( key ).substring( 4 ).toInt();
+    Serial.print( key );
+    Serial.print( " " );
+    Serial.print( NB );
+    Serial.print( " " );
+    int val = value.as<int>();
+    Serial.println( val );
+    digitalWrite( NB, val );
+  }
+}
+
+void receivedSERIAL( JsonVariant& SERIALobject ) {
+  Serial.print( "cmd SERIAL recu" );
+  Serial.println( "\n############# receivedSERIAL" );
+  // SERIALobject.printTo( Serial );
+  const char* SerialChar = SERIALobject;
+  Serial.println( SerialChar );
+  Serial.println( "\n############# \n" );
+}
+
+void wifiSettingsFileWrite( uint8_t num, WStype_t type, uint8_t * payload, size_t length )
+{
+  String path = String( "/wifisettings.json" );
+  Serial.println( "wifiSettingsFileWrite: " + path );
+  Serial.printf( "PAYLOAD %s\n###\n", payload );
+
+  // if( SPIFFS.exists( path ) )
+  //   return webServer.send(500, "text/plain", "FILE EXISTS");
+  File cFile;
+  cFile = SPIFFS.open( path, "w" );
+  if( cFile )
+  {
+    Serial.println( "Writing " + path );
+    char payloadChar[ length+1 ];
+    sprintf( payloadChar, "%s", payload );
+    cFile.print( payloadChar );
+    Serial.println( "Closing " + path );
+    cFile.close();
+  }
+  else
+  {
+    Serial.println( "Error writing " + path );
+    return webServer.send( 500, "text/plain", "CREATE FAILED" );
+  }
+
+  webServer.send( 200, "text/plain", "" );
+  path = String();
+}
+
+void wifiSettingsActiveIndexFileWrite( uint8_t num, WStype_t type, uint8_t * payload, size_t length )
+{
+  String path = String( "/wifisettingsactiveindex.ini" );
+  Serial.println( "wifiSettingsActiveIndexFileWrite: " + path );
+  Serial.printf( "PAYLOAD %s\n###\n", payload );
+
+  // if( SPIFFS.exists( path ) )
+  //   return webServer.send(500, "text/plain", "FILE EXISTS");
+  File cFile;
+  cFile = SPIFFS.open( path, "w" );
+  if( cFile )
+  {
+    Serial.println( "Writing " + path );
+    char payloadChar[ length+1 ];
+    sprintf( payloadChar, "%s", payload );
+    cFile.print( payloadChar );
+    Serial.println( "Closing " + path );
+    cFile.close();
+  }
+  else
+  {
+    Serial.println( "Error writing " + path );
+    return webServer.send( 500, "text/plain", "CREATE FAILED" );
+  }
+
+  webServer.send( 200, "text/plain", "" );
+  path = String();
+}
+
+void wifiSettingsFileRead( uint8_t num )
+{
+  String path = String( "/wifisettings.json" );
+  Serial.println( "wifiSettingsFileRead: " + path );
+  webSocket.sendTXT( num, "{\"COUCOU\":\"c'estmoi\"}" );
+
+  File cFile = SPIFFS.open( path, "r" );
+  String s=cFile.readStringUntil( ']' ) + "]";
+  Serial.println( s );
+  webSocket.sendTXT( num, s );
+  cFile.close();
+}
+
+void initGPIO()
+{
+  // Initialisation des LED
+  pinMode( LED_RED,  OUTPUT );
+  pinMode( LED_BLUE, OUTPUT );
+  pinMode( RESET_PIN,  OUTPUT );
+  digitalWrite( RESET_PIN, HIGH );
+  digitalWrite( LED_BLUE, LED_CLEAR );
+  digitalWrite( LED_RED,  LED_CLEAR );
+  onFaitUnePause( 4000 );
+}
+
+void initSerial()
+{
+  Serial.begin( 115200 );
+  Serial.print( "\n\n\n\n\n\n\n\nDEMO WEBSOCKET\n==============\n\n" );
+}
+
+void printCurrentTime()
+{
+  jsonMsgTime = getNTPTime();
+  Serial.printf( "\tHeure et date (main) : %s\n\n", jsonMsgTime );
+}
+
+void finSetup()
+{
+  Serial.print( "# FIN DE L'INITIALISATION\n" );
+  Serial.print( "\tAdresse IP : " );
+  Serial.println( WiFi.localIP() );
+  Serial.printf( "\tNom        : %s.local \n\n##############\n\n", mDNSName );
 }
 
 void setup()
 {
   // Initialisation du port série
-  Serial.begin( 115200 );
-  Serial.print( "\n\nDEMO WEBSOCKET\n==============\n\n" );
+  initSerial();
 
   // Affichage de quelques caractéristiques de l’ESP8266
   printESPInfo();
 
-  // Initialisation des LED
-  pinMode( LED_RED,  OUTPUT );
-  pinMode( LED_BLUE, OUTPUT );
-  digitalWrite( LED_BLUE, LED_CLEAR );
-  digitalWrite( LED_RED,  LED_CLEAR );
-  onFaitUnePause( 4000 );
+  // Initialisation des GPIO
+  initGPIO();
 
   // Initialisation du système de fichiers
   initSystemeFichiers();
 
+  // Test JSON
+  parseJSONwifiSettingsFromFile();
+
   // Démarrage des services web
+  scanNetwork();
   initServicesWeb();
 
-  // Demande l’heure à un serveur NTP
+  // Initialisation du service UDP
   udpInit();
-  jsonMsgTime = getNTPTime();
-  Serial.printf( "HEURE DE DEMARRAGE DE L'ESP8266 : %s\n", jsonMsgTime );
+  printCurrentTime();
 
   // Fin de l’initialisation
-  Serial.print( "Fin de l'initialisation\n" );
-  Serial.print( "Adresse IP : " );
-  Serial.println( WiFi.localIP() );
-  Serial.printf( "Nom        : %s.local \n\n###\n\n", mDNSName );
+  finSetup();
 }
 
 void loop()

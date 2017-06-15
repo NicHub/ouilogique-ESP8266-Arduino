@@ -90,3 +90,6 @@ div.bad {
 div#label {
 	max-width: 240px;
 }
+a {
+	color: white;
+}

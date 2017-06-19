@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>&#8859; ESP8266 &#8859;</title>
+	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+	<link href="style.css" rel="stylesheet" />
+</head>
+<body>
+
+<div class="container">
+	<h1 class="neon">Test WebSocket<br />sur ESP8266</h1>
+	<p><a href="/"><img alt="logo" src="logo.png" style="height:100px;width:100px;" /></a></p>
+	<progress id="cpt-progress" class="progressbar" value="0" max="10">0 %</progress>
+	<label>Texte à envoyer via RS232</label>
+	<textarea id="txtLED">#FF00FF</textarea>
+	<button type="button" onclick="envoyerTexte()">Envoyer le&nbsp;texte</button>
+	<div id="label" class="alert">&#10087;</div>
+</div>
+
+<div class="container">
+	<button id="btn0" type="button" onclick="changeLEDbleue()">LED bleue</button>
+	<br/><br/>
+	<button id="btn1" type="button" onclick="changeLEDrouge()">LED rouge</button>
+	<br/><br/>
+	<p><a href="wifisettings.html">Paramètres WiFi</a></p>
+</div>
+
+<div class="container">
+	<p id="horloge">&#10087;</p>
+	<p id="adresseIP">Adresse IP</p>
+	<p id="mDNSName">Nom mDNS</p>
+</div>
+
+
+<script type="text/javascript" src="websocket.js"></script>
+
+</body>
+</html>

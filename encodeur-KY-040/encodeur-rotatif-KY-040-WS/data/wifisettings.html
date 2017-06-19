@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Paramètres WiFi</title>
+        <link rel="stylesheet" href="bootstrap.min.css" />
+        <style>
+            html {
+            min-height: 100%;
+            }
+            body {
+            color: #fff;
+            /* Source : http://uigradients.com/# */
+            background: #182848;
+            background: -webkit-linear-gradient( to bottom, #4b6cb7 , #182848 );
+            background: linear-gradient( to bottom, #4b6cb7 , #182848 );
+            }
+            .custom-label {
+            width: 120px;
+            }
+            .custom-control {
+            /*width: 500px*/
+            }
+            .custom-row {
+            margin: 10px 0;
+            }
+            .titre {
+                padding: 0;
+                margin: 20px 0 40px;
+                font-size: 90%;
+            }
+            h1{
+                text-transform: uppercase;
+                font-size: 25pt;
+
+            }
+            .control-label p {
+            margin-bottom: 0;
+            }
+            .hidden {
+                visibility: hidden;
+            }
+</style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 col-xs-offset-0 col-sm-6 col-sm-offset-3 text-center">
+                    <div class="row titre">
+                        <div class="col-xs-12 text-center">
+                            <h1>Informations de&#160;connexion</h1>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div id="wifi_list" class="col-xs-12">
+                            <div id="wifi_item_1" class="row custom-row">
+                                <div class="control-label col-xs-2 text-center">
+                                    <p class="wifi_item_id">1</p>
+                                    <input type="radio" name="group" value="option1" />
+                                </div>
+                                <div class="col-xs-10">
+                                    <div class="row">
+                                        <div class="input-group col-xs-12">
+                                            <span class="input-group-addon custom-label">SSID</span>
+                                            <input type="text" class="form-control wifi_item_ssid" placeholder="SSID" />
+                                        </div>
+                                        <div class="input-group col-xs-12">
+                                            <span class="input-group-addon custom-label">Mot de passe</span>
+                                            <input type="password" class="form-control custom-control wifi_item_mdp" placeholder="Mot de passe" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="wifisettings.js"></script>
+    </body>
+</html>

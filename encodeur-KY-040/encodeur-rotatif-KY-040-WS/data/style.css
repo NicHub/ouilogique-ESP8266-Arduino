@@ -1,0 +1,103 @@
+@charset "utf-8";
+html {
+	color: #fff;
+	font-family: "Helvetica Neue", sans-serif;
+	text-align: center;
+	min-height: 100%;
+	/* Source : http://uigradients.com/# */
+	background: #182848;
+	background: -webkit-linear-gradient( to bottom, #4b6cb7 , #182848 );
+	background: linear-gradient( to bottom, #4b6cb7 , #182848 );
+}
+body * {
+	background-color: transparent;
+	line-height: 120%;
+	letter-spacing: 0.1em;
+	word-spacing: -0.1em;
+}
+div {
+	margin: 15px auto;
+	display: table;
+	max-width: 600px;
+	padding: 10px;
+}
+h1 {
+	font-size: 1.825em;
+	margin: 15px auto;
+	letter-spacing: 0.15em;
+	word-spacing: -0.15em;
+}
+img {
+	margin: 30px auto;
+}
+label {
+	display: block;
+	font-size: 16pt;
+	font-weight: bold;
+	margin: 0 auto;
+	width: 100%;
+}
+textarea {
+	border-color: #CCC;
+	border-radius: 6px;
+	border-style: solid;
+	border-width: 1px;
+	box-sizing: border-box;
+	color: lime;
+	font-family: Courier, monospace;
+	font-size: 20pt;
+	height: 250px;
+	margin: 10px auto 15px;
+	padding: 12px;
+	width: 100%;
+}
+button {
+	-webkit-appearance: none;
+	-webkit-user-select: none;
+	background-color: #337ab7;
+	border-radius: 4px;
+	border: 1px solid #2e6da4;
+	color: white;
+	font-size: 15pt;
+	margin: 0 auto;
+	min-height: 50px;
+	padding: 10px;
+	vertical-align: middle;
+	width: 100%;
+}
+button:hover {
+	cursor: pointer;
+}
+button.pressed {
+	color: white;
+	border: 1px solid white;
+	background-color: firebrick;
+}
+div.alert {
+	color: #999;
+	font-size: 14pt;
+	text-align: center;
+}
+div.bad {
+	color: red;
+}
+.neon {
+	text-transform: uppercase;
+}
+.neon:hover {
+	text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #ff00de, 0 0 30px #ff00de, 0 0 40px #ff00de, 0 0 50px #ff00de, 0 0 75px #ff00de;
+}
+div#label {
+	max-width: 240px;
+}
+a {
+	color: white;
+}
+progress.progressbar {
+	width: 600px;
+	height: 2em;
+	border: none;
+	margin: 0 0 50px;
+	background-color: rgba( 0, 0, 0, 0 );
+	color: red;
+}

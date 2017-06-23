@@ -31,6 +31,8 @@ http://www.banggood.com/5Pcs-5V-KY-040-Rotary-Encoder-Module-For-Arduino-AVR-PIC
   ip=$(ping -c 1 esp8266.local | gawk -F'[()]' '/PING/{print $2}'); echo "http://$ip/"
   curl -F "file=@websocket.js"        http://$ip/upload
 
+# POUR NE PAS METTRE DE MOTS DE PASSE EN LIGNE
+git update-index --assume-unchanged "wifisettings.json"
 
 juin 2017, ouilogique.com
 

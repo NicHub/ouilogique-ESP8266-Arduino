@@ -81,8 +81,8 @@ function receivedGPIO( ESP8266rep ) {
     console.log( 'ESP8266rep.GPIO     = ', ESP8266rep.GPIO     );
     console.log( 'ESP8266rep.GPIO[ ' + LEDrougeGPIO + ' ] = ' + ESP8266rep.GPIO[ LEDrougeGPIO ] );
     console.log( 'ESP8266rep.GPIO[ ' + LEDbleueGPIO + ' ] = ' + ESP8266rep.GPIO[ LEDbleueGPIO ] );
-    LEDrougeLastValue = ESP8266rep.GPIO[ LEDrougeGPIO ];
-    LEDbleueLastValue = ESP8266rep.GPIO[ LEDbleueGPIO ];
+    // LEDrougeLastValue = ESP8266rep.GPIO[ LEDrougeGPIO ];
+    // LEDbleueLastValue = ESP8266rep.GPIO[ LEDbleueGPIO ];
 }
 
 function receivedTIME( ESP8266rep ) {
@@ -114,6 +114,7 @@ function demanderIP() {
 }
 
 function changeLEDrouge() {
+  var btn1 = document.getElementById( "btn1" );
   if( LEDrougeLastValue == 0 ) {
     addClass( btn1, "pressed" );
     var rgb = '#FF0000';
@@ -128,7 +129,7 @@ function changeLEDrouge() {
 }
 
 function changeLEDbleue() {
-  var btn1 = document.getElementById( "btn1" );
+  var btn0 = document.getElementById( "btn0" );
   if( LEDbleueLastValue == 0 ) {
     addClass( btn0, "pressed" );
     var rgb = '#0000FF';

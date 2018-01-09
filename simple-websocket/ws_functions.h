@@ -23,8 +23,16 @@ String activePASSWORD;
 
 
 ESP8266WiFiMulti WiFiMulti;
-ESP8266WebServer webServer = ESP8266WebServer( 80 );
-WebSocketsServer webSocket = WebSocketsServer( 81 );
+
+// Modifs dues à des changements dans les librairies
+// qui gèrent webServer et webSocket.
+// voir https://github.com/esp8266/Arduino/issues/4085
+// Ancien code :
+// ESP8266WebServer webServer = ESP8266WebServer( 80 );
+// WebSocketsServer webSocket = WebSocketsServer( 81 );
+// Nouveau code :
+ESP8266WebServer webServer( 80 );
+WebSocketsServer webSocket( 81 );
 
 #define ESP_MODULE_TYPE 'ESP-12E'
 #if ESP_MODULE_TYPE == 'ESP-01'

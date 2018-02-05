@@ -18,11 +18,14 @@ Ce programme permet de communiquer avec un ESP8266 avec le protocole WebSocket. 
 - Installer la bibliothèque pour programmer l’ESP8266 dans l’IDE Arduino. Dans les préférences de l’IDE, sous “URL de gestionnaire de cartes supplémentaires”, ajouter le lien suivant : `http://arduino.esp8266.com/stable/package_esp8266com_index.json`.
 - Dans le menu `Outils/Type de carte/Gestionnaire de carte` installer la famille `esp8266 by ESP8266 Community`.
 - Changer le type de carte dans le menu `Outils/Type de carte` et choisir `NodeMCU 1.0 (ESP-12E Module)`.
-- Dans le menu `Croquis/Inclure une Bibliothèque/Gérer les bibliothèques`, inclure la librairie `WebSockets` de Markus Sattler.
+- Dans le menu `Croquis/Inclure une Bibliothèque/Gérer les bibliothèques`, inclure les librairies suivantes :
+    - `WebSockets` de Markus Sattler
+    - `ArduinoJson` de Benoit Blanchon
+    - `Time` de Michael Margolis
 - Installer le gestionnaire de téléchargement *esp8266fs*. Voir <https://github.com/esp8266/arduino-esp8266fs-plugin/>
-	- Télécharger [le fichier zip](https://github.com/esp8266/arduino-esp8266fs-plugin/releases/tag/0.2.0)
-	- Créer le dossier `~/Documents/Arduino/tools/` s’il n’existe pas.
-	- Extraire le contenu du fichier zip et le copier dans le répertoire `~/Documents/Arduino/tools/`. Au final, il n’y a qu’un seul fichier `~/Documents/Arduino/tools/ESP8266FS/tool/esp8266fs.jar`.
+	- Télécharger [le fichier zip](https://github.com/esp8266/arduino-esp8266fs-plugin/releases/)
+	- Créer le dossier `~/Documents/Arduino/tools/` s’il n’existe pas (ou `%userprofile%\Documents\Arduino\tools\` sous Windows.
+	- Extraire le contenu du fichier zip et le copier dans le répertoire `~/Documents/Arduino/tools/`. Au final, il n’y a qu’un seul fichier `~/Documents/Arduino/tools/ESP8266FS/tool/esp8266fs.jar` (ou `%userprofile%\Documents\Arduino\tools\ESP8266FS\tool\esp8266fs.jar` sous Windows).
 	- Redémarrer l’IDE Arduino et le menu `Outils` doit maintenant contenir la commande `ESP8266 Sketch Data Upload`.
 	- Lors de l’utilisation d’*esp8266fs*, il faut que le moniteur série de l’IDE soit fermé, sinon une erreur est générée.
 

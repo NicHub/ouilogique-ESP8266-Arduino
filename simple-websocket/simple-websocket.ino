@@ -52,12 +52,13 @@ https://github.com/NicHub/ouilogique-ESP8266-Arduino/tree/master/simple-websocke
 # UPLOAD DES FICHIERS DU SERVEUR WEB DE L’ESP8266
 
 ## Avec esp8266fs
-  Le premier upload doit être réalisé avec esp8266fs.
-  Ensuite, on peut utiliser les requêtes POST (voir ci-dessous).
+  Le premier upload doit être réalisé avec `esp8266fs`,
+  mais cette façon de procéder est très lente !
+  Pour que les uploads soient plus rapide on utilisera
+  pour la suite les requêtes POST avec le programme
+  en ligne de commande `curl` (voir ci-dessous).
 
-  Cette façon de procéder est très lente !
-
-  La procédure d’installation et d’utilisation est ici :
+  La procédure d’installation et d’utilisation d’`esp8266fs` se trouve ici :
   https://github.com/esp8266/arduino-esp8266fs-plugin/
 
   Le fichiers doivent impérativement se trouver dans un répertoire appelé `data`
@@ -70,10 +71,11 @@ https://github.com/NicHub/ouilogique-ESP8266-Arduino/tree/master/simple-websocke
 
 ## Avec des requêtes POST
   Il faut que l’ESP soit flashé avec `simple-websocket.ino` au préalable pour que ça fonctionne.
-  Testé sur Mac OSX et Win 7 avec Cygwin.
+  Testé sur Mac OSX, Win 7 avec Cygwin et Win10 avec le Bash installé par Git.
 
     cd data
     ip=$(ping -c 1 esp8266.local | gawk -F'[()]' '/PING/{print $2}'); echo "http://$ip/"
+    for FILE in `ls -A1`; do curl -F "file=@$FILE" http://$ip/upload; done
     curl -F "file=@img1.jpg"        http://$ip/upload \
          -F "file=@img2.jpg"        http://$ip/upload \
          -F "file=@index.html"      http://$ip/upload \
@@ -82,7 +84,7 @@ https://github.com/NicHub/ouilogique-ESP8266-Arduino/tree/master/simple-websocke
          -F "file=@websocket.js"    http://$ip/upload
 
 
-juin 2016, ouilogique.com
+juin 2016-2018, ouilogique.com
 
 */
 

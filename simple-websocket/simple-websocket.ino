@@ -34,17 +34,6 @@ https://github.com/NicHub/ouilogique-ESP8266-Arduino/tree/master/simple-websocke
   Pour le mettre à nouveau :
     git update-index --no-assume-unchanged wifisettings.json
 
-  Dans la version précédente du programme (avant 15 juin 2017),
-  il fallait créer manuellement le fichier `WifiSettings.h`
-  à la racine du projet et indiquer les informations suivantes :
-  const char* ssid     = "***";
-  const char* password = "***";
-
-  Pour ne pas mettre à jour le fichier `WifiSettings.h` dans Git, utiliser
-  git update-index --skip-worktree WifiSettings.h
-  Et pour le mettre à jour (pas recommandé)
-  git update-index --no-skip-worktree WifiSettings.h
-
   Ce croquis est basé sur les exemples suivants :
   https://github.com/Links2004/arduinoWebSockets/blob/master/examples/WebSocketServer_LEDcontrol/WebSocketServer_LEDcontrol.ino
   https://github.com/AdySan/ESPSocket/blob/master/ESPSocket/ESPSocket.ino
@@ -73,15 +62,25 @@ https://github.com/NicHub/ouilogique-ESP8266-Arduino/tree/master/simple-websocke
   Il faut que l’ESP soit flashé avec `simple-websocket.ino` au préalable pour que ça fonctionne.
   Testé sur Mac OSX, Win 7 avec Cygwin et Win10 avec le Bash installé par Git.
 
+    # Aller dans le répertoire `data` dans le terminal
     cd data
-    ip=$(ping -c 1 esp8266.local | gawk -F'[()]' '/PING/{print $2}'); echo "http://$ip/"
+
+    # Créer une variable contenant l’IP de l’ESP (retournée dans le terminal de l’IDE Arduino)
+    ip=192.168.1.xxx
+
+    # Pour copier tous les fichiers du répertoire `data` sur l’ESP :
     for FILE in `ls -A1`; do curl -F "file=@$FILE" http://$ip/upload; done
+
+    # Pour copier seulement quelques fichiers :
     curl -F "file=@img1.jpg"        http://$ip/upload \
          -F "file=@img2.jpg"        http://$ip/upload \
          -F "file=@index.html"      http://$ip/upload \
          -F "file=@logo.png"        http://$ip/upload \
          -F "file=@style.css"       http://$ip/upload \
          -F "file=@websocket.js"    http://$ip/upload
+
+    # Pour copier seulement un fichier :
+    curl -F "file=@img1.jpg"        http://$ip/upload
 
 
 juin 2016-2018, ouilogique.com

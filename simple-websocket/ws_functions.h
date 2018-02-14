@@ -45,7 +45,8 @@ static const uint8_t RESET_PIN = 5; // GPIO 5;
 #endif
 #define LED_SET   LOW
 #define LED_CLEAR HIGH
-extern const char* mDNSName;
+extern char mDNSName[ 26 ];
+extern char macAddress[ 18 ];
 
 
 void webSocketEvent( uint8_t num, WStype_t type, uint8_t * payload, size_t length );
@@ -452,6 +453,14 @@ void initServicesWeb()
   webSocket.onEvent( webSocketEvent );
 
   // Démarrage du mDNS (multicast Domain Name System)
+
+  // On crée un nom mDNSName unique formé de la constante
+  // “esp8266-” suivie de l’adresse Mac de l’ESP.
+  byte mac[ 6 ];
+  WiFi.macAddress( mac );
+  sprintf( macAddress, "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5] );
+  sprintf( mDNSName, "esp8266-%s", macAddress );
+
   Serial.printf( "\tDemarrage du mDNS avec le nom '%s.local' .. ", mDNSName );
   if( MDNS.begin( mDNSName ) )
     { Serial.print( "OK\n" ); }

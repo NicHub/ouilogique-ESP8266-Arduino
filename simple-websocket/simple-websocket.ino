@@ -88,11 +88,11 @@ juin 2016-2018, ouilogique.com
 
 */
 
-#include "WifiSettings.h"
 #include <ArduinoJson.h>
 #include "ws_functions.h"
 
-const char* mDNSName = "esp8266";
+char mDNSName[ 26 ];
+char macAddress[ 18 ];
 extern ESP8266WebServer webServer;
 extern WebSocketsServer webSocket;
 char *jsonMsgTime;
@@ -338,10 +338,12 @@ void printCurrentTime()
 void finSetup()
 {
   Serial.print( "# FIN DE L'INITIALISATION\n" );
-  Serial.printf( "\tNom        : %s.local\n", mDNSName );
-  Serial.print( "\tAdresse IP : " );
+  Serial.printf( "\tNom         : %s.local\n", mDNSName );
+  Serial.print( "\tAdresse Mac : " );
+  Serial.println( macAddress );
+  Serial.print( "\tAdresse IP  : " );
   Serial.println( WiFi.localIP() );
-  Serial.print( "\tURL        : http://" );
+  Serial.print( "\tURL         : http://" );
   Serial.print( WiFi.localIP() );
   Serial.print( "/\n\n##############\n\n" );
 }

@@ -65,7 +65,11 @@ https://github.com/NicHub/ouilogique-ESP8266-Arduino/tree/master/simple-websocke
     # Aller dans le répertoire `data` dans le terminal
     cd data
 
-    # Créer une variable contenant l’IP de l’ESP (retournée dans le terminal de l’IDE Arduino)
+    # Créer une variable contenant l’IP de l’ESP
+    # L’IP est retournée dans le terminal de l’IDE Arduino.
+    # Accessoirement, on peut aussi retrouver toutes les IP
+    # connues sur le réseau avec la commande `arp -a` qui fonctionne
+    # aussi bien sous Bash que dans le terminal de Windows.
     ip=192.168.1.xxx
 
     # Pour copier tous les fichiers du répertoire `data` sur l’ESP :

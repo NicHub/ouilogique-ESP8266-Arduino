@@ -40,6 +40,9 @@ https://github.com/NicHub/ouilogique-ESP8266-Arduino/tree/master/simple-websocke
 
 # UPLOAD DES FICHIERS DU SERVEUR WEB DE L’ESP8266
 
+  Attention, la longueur maximum des noms de fichier est de 30 caractères
+  au total, y compris l’extension !
+
 ## Avec esp8266fs
   Le premier upload doit être réalisé avec `esp8266fs`,
   mais cette façon de procéder est très lente !

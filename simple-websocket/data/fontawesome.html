@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Démo Font Awesome local</title>
+    <script defer src="fontawesome.js"></script>
+    <style>
+    body {
+        font-family: Arial;
+        text-align: center;
+    }
+
+    div {
+        font-size: 60pt;
+    }
+    </style>
+</head>
+
+<body>
+    <h1>Utilisation de Font Awesome sans connexion Internet</h1>
+    <p>
+        Dans cet exemple, seules les icônes utilisées sont présentes dans le fichier JavaScript qui a été renommé <code>fontawesome-all.min-used-icons-only.js</code>.
+    </p>
+    <p>
+        Pour enlever les icônes inutilisées, j’ai recherché les numéros de ligne des icônes utilisées et j’ai supprimé les autres manuellement, puis j’ai minifié le fichier avec <a href="https://jscompress.com/">JSCompress</a>.
+    </p>
+    <div>
+        <i class="fas fa-fast-backward"></i> <!-- ligne 746 -->
+        <i class="fas fa-step-backward"></i> <!-- ligne 966 -->
+        <i class="fas fa-backward"></i>      <!-- ligne 613 -->
+        <i class="fas fa-play"></i>          <!-- ligne 896 -->
+        <i class="fas fa-forward"></i>       <!-- ligne 773 -->
+        <i class="fas fa-step-forward"></i>  <!-- ligne 967 -->
+        <i class="fas fa-fast-forward"></i>  <!-- ligne 747 -->
+    </div>
+    <div>
+        <i class="fas fa-pause"></i>         <!-- ligne 886 -->
+    </div>
+</body>
+
+</html>

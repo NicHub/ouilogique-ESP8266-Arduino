@@ -25,7 +25,7 @@ String activePASSWORD;
 
 
 ESP8266WiFiMulti WiFiMulti;
-ESP8266WebServer webServer = ESP8266WebServer( 80 );
+ESP8266WebServer webServer( 80 );
 WebSocketsServer webSocket = WebSocketsServer( 81 );
 
 #define ESP_MODULE_TYPE 'ESP-12E'

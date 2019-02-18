@@ -81,7 +81,7 @@ encType lectureEncodeur( bool reset )
     return encodeurValOut;
   }
 
-  // Mise à jour du compteur et coercion dans la gamme minVal..maxVal
+  // Mise à jour du compteur et coercition dans la gamme minVal..maxVal
   if( compteur < minVal || ( compteur == minVal && encodeurVal < 0 ) )
     compteur = minVal;
   else if( compteur > maxVal || ( compteur == maxVal && encodeurVal > 0 ) )
